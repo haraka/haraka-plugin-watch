@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "lint": "./node_modules/.bin/eslint *.js lib/*.js test/*.js",
+    "lint": "./node_modules/.bin/eslint *.js lib/*.js html/client.js test/*.js",
     "coverage": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha"
   },
   "repository": {
