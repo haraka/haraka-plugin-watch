@@ -143,8 +143,8 @@ exports.get_incremental_results = function (next, connection) {
 };
 
 exports.queue_ok = function (next, connection) {
-    // queue_ok arguments: next, connection, msg
-    // ok 1390590369 qp 634 (F82E2DD5-9238-41DC-BC95-9C3A02716AD2.1)
+  // queue_ok arguments: next, connection, msg
+  // ok 1390590369 qp 634 (F82E2DD5-9238-41DC-BC95-9C3A02716AD2.1)
 
   var incrDone = function () {
     wss.broadcast({
@@ -159,12 +159,12 @@ exports.queue_ok = function (next, connection) {
 
 exports.w_deny = function (next, connection, params) {
   var plugin = this;
-    // this.loginfo(this, params);
+  // this.loginfo(this, params);
   var pi_code   = params[0];  // deny code?
-    // var pi_msg    = params[1];  // deny error
+  // var pi_msg    = params[1];  // deny error
   var pi_name   = params[2];  // plugin name
-    // var pi_function = params[3];
-    // var pi_params   = params[4];
+  // var pi_function = params[3];
+  // var pi_params   = params[4];
   var pi_hook   = params[5];
 
   connection.loginfo(this, "watch deny saw: " + pi_name +

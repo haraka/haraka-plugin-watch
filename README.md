@@ -11,13 +11,13 @@ Watch live SMTP traffic in a web interface.
 2. Add 'watch' to config/plugins
 3. Point your web browser at http://mail.your-domain.com/watch/
 
-Enjoy the blinky lights. 
+Enjoy the blinky lights.
 
 
 ## Tips
 
 * Hover your mouse pointer or tap (with touch devices) on table data to see more
-details. 
+details.
 * Copy that connection UUID at left and use it to grep your logs for even more.
 * Edit the files in watch/html and play with the appearance. If you make it
   better, post a screen shot somewhere and create an Issue or PR.
