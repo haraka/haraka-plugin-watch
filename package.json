@@ -1,12 +1,12 @@
 {
   "name": "haraka-plugin-watch",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Watch live SMTP traffic in a web interface",
   "main": "index.js",
   "scripts": {
     "test": "mocha",
     "lint": "./node_modules/.bin/eslint *.js lib/*.js html/client.js test/*.js",
-    "coverage": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha"
+    "cover": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha"
   },
   "repository": {
     "type": "git",
