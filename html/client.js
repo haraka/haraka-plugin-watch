@@ -15,15 +15,17 @@ var connect_plugins  = ['geoip','asn','connect.p0f','dnsbl', 'early_talker', 'co
 var helo_plugins     = ['helo.checks', 'tls', 'auth', 'relay', 'spf'];
 var mail_from_plugins= ['spf', 'mail_from.is_resolvable'];
 var rcpt_to_plugins  = ['access', 'rcpt_to.in_host_list', 'rcpt_to.qmail_deliverable'];
-var data_plugins     = ['bounce','data.headers','karma','spamassassin','rspamd',
-                        'clamd','avg','data.uribl','limit','dkim_sign','dkim_verify',
-                        'attachment'];
+var data_plugins     = [
+  'bounce','data.headers','karma','spamassassin','rspamd',
+  'clamd','avg','data.uribl','limit','dkim_sign','dkim_verify',
+  'attachment'
+];
 // 'seen' plugins are ones we've seen data reported for. When data from a new
 // plugin arrives, it gets added to one of the sections above and the table is
 // redrawn.
-var seen_plugins     = connect_plugins.concat(helo_plugins, mail_from_plugins,
-                       rcpt_to_plugins, data_plugins);
-var ignore_seen      = ['local_port', 'remote_host', 'helo', 'mail_from', 'rcpt_to', 'queue'];
+var seen_plugins = connect_plugins.concat(helo_plugins, mail_from_plugins,
+                   rcpt_to_plugins, data_plugins);
+var ignore_seen  = ['local_port', 'remote_host', 'helo', 'mail_from', 'rcpt_to', 'queue'];
 
 var rows_showing = 0;
 
