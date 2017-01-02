@@ -1,4 +1,7 @@
 
+1.0.4 - 2017-01-01
+    - lint fixes
+
 1.0.3 - 2016-10-25
 
     - set logs URLs to open in new browser window

@@ -223,19 +223,20 @@ exports.get_connection_results = function (connection) {
     queue      : { newval: elapsed(connection.start_time) },
   };
 
-    // see if changed since we last sent
-  [ 'local_port', 'remote_host', 'tls', 'auth', 'relay', 'helo', 'early'
-    ].forEach(function (val) {
-      if (JSON.stringify(req[val]) ===
-            JSON.stringify(connection[val + '_watch'])) {
-            // same as last time, don't send
-        delete req[val];
-      }
-      else {
-            // cache, so we can compare on the next run
-        connection[val + '_watch'] = JSON.stringify(req[val]);
-      }
-    });
+  // see if changed since we last sent
+  [
+    'local_port', 'remote_host', 'tls', 'auth', 'relay', 'helo', 'early'
+  ]
+  .forEach(function (val) {
+    if (JSON.stringify(req[val]) === JSON.stringify(connection[val + '_watch'])) {
+      // same as last time, don't send
+      delete req[val];
+    }
+    else {
+      // cache, so we can compare on the next run
+      connection[val + '_watch'] = JSON.stringify(req[val]);
+    }
+  });
 
   var result_store = connection.results.get_all();
   for (var name in result_store) {
@@ -504,10 +505,10 @@ function get_recipients(txn) {
   var t = [];
   txn.rcpt_to.forEach(function (ea) {
     try { var rcpt = ea.address(); }
-        catch (ignore) { }
+    catch (ignore) { }
     if (!rcpt) {
       try { rcpt = ea.keys.join(','); }
-            catch (ignore) { }
+      catch (ignore) { }
     }
     if (!rcpt) {
       rcpt = ea;
