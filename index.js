@@ -505,10 +505,10 @@ function get_recipients(txn) {
   var t = [];
   txn.rcpt_to.forEach(function (ea) {
     try { var rcpt = ea.address(); }
-        catch (ignore) { }
+    catch (ignore) { }
     if (!rcpt) {
       try { rcpt = ea.keys.join(','); }
-            catch (ignore) { }
+      catch (ignore) { }
     }
     if (!rcpt) {
       rcpt = ea;
