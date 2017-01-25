@@ -1,5 +1,7 @@
 # watch
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/haraka/haraka-plugin-watch.svg)](https://greenkeeper.io/)
+
 Watch live SMTP traffic in a web interface.
 
 ![Watch Screen Capture](http://www.tnpi.net/internet/mail/haraka-watch.png)
