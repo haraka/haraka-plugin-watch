@@ -1,4 +1,9 @@
 
+1.0.5 - 2017-01-24
+
+    - added plugin known-senders
+    - removed grunt
+
 1.0.4 - 2017-01-01
     - lint fixes
 
