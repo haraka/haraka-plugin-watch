@@ -27,17 +27,17 @@ exports.load_watch_ini = function () {
   plugin.cfg = plugin.config.get('watch.ini', {
     booleans:  ['-main.sampling'],
   },
-    function () {
-      plugin.load_watch_ini();
-    });
+  function () {
+    plugin.load_watch_ini();
+  });
 };
 
 exports.hook_init_http = function (next, server) {
   var plugin = this;
 
   server.http.app.use('/watch/wss_conf', function (req, res) {
-        // app.use args: request, response, app_next
-        // pass config information to the WS client
+    // app.use args: request, response, app_next
+    // pass config information to the WS client
     var client = { sampling: plugin.cfg.main.sampling };
     if (plugin.cfg.wss && plugin.cfg.wss.url) {
       client.wss_url = plugin.cfg.wss.url;

@@ -13,7 +13,7 @@ var txn_cols;
 
 var connect_plugins  = ['geoip','asn','connect.p0f','dnsbl', 'early_talker', 'connect.fcrdns'];
 var helo_plugins     = ['helo.checks', 'tls', 'auth', 'relay', 'spf'];
-var mail_from_plugins= ['spf', 'mail_from.is_resolvable'];
+var mail_from_plugins= ['spf', 'mail_from.is_resolvable', 'known-senders'];
 var rcpt_to_plugins  = ['access', 'rcpt_to.in_host_list', 'rcpt_to.qmail_deliverable'];
 var data_plugins     = [
   'bounce','data.headers','karma','spamassassin','rspamd',
@@ -362,6 +362,7 @@ function shorten_pi (name) {
     'rcpt_to.in_host_list': 'host_list',
     'mail_from.is_resolvable': 'dns',
     'dkim_verify' : 'dkim',
+    'known-senders' : 'wks',
   };
   if (trims[name]) return trims[name];
 
