@@ -72,6 +72,7 @@ td#queue {
 .bg_black  { background-color: black; color: white; }
 .bg_white  { background-color: white; color: black; }
 .bg_grey   { background-color: grey;  color: black; }
+.bg_lgrey  { background-color: lightgrey; color: black; }
 
 span#head_left {
 		float: clear;

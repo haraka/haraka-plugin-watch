@@ -1,4 +1,8 @@
 
+1.0.6 - 2017-01-25
+
+    - plugins w/o pass results are now light grey (was light green)
+
 1.0.5 - 2017-01-24
 
     - added plugin known-senders

@@ -382,7 +382,7 @@ exports.get_class = function (pi_name, r) {
                     r.pass.length ? 'bg_lgreen' :
                     r.fail.length ? 'bg_red'    :
                     r.err.length  ? 'bg_yellow' :
-                                    'bg_lgreen';
+                                    'bg_lgrey';
   }
 };
 

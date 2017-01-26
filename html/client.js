@@ -362,7 +362,7 @@ function shorten_pi (name) {
     'rcpt_to.in_host_list': 'host_list',
     'mail_from.is_resolvable': 'dns',
     'dkim_verify' : 'dkim',
-    'known-senders' : 'wks',
+    'known-senders' : 'known',
   };
   if (trims[name]) return trims[name];
 
