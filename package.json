@@ -6,6 +6,7 @@
   "scripts": {
     "test": "mocha",
     "lint": "./node_modules/.bin/eslint *.js lib/*.js html/client.js test/*.js",
+    "lintfix": "./node_modules/.bin/eslint --fix *.js lib/*.js html/client.js test/*.js",
     "cover": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha"
   },
   "repository": {
@@ -30,6 +31,7 @@
   },
   "devDependencies": {
     "eslint": ">=3",
+    "eslint-plugin-haraka": "*",
     "haraka-test-fixtures": "*",
     "mocha": "*"
   }

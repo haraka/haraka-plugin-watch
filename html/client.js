@@ -11,7 +11,7 @@ var total_cols;
 var cxn_cols;
 var txn_cols;
 
-var connect_plugins  = ['geoip','asn','connect.p0f','dnsbl', 'early_talker', 'connect.fcrdns'];
+var connect_plugins  = ['geoip','asn','p0f','dnsbl', 'early_talker', 'fcrdns'];
 var helo_plugins     = ['helo.checks', 'tls', 'auth', 'relay', 'spf'];
 var mail_from_plugins= ['spf', 'mail_from.is_resolvable', 'known-senders'];
 var rcpt_to_plugins  = ['access', 'rcpt_to.in_host_list', 'rcpt_to.qmail_deliverable'];
@@ -56,7 +56,7 @@ function newRowConnectRow2 (data, uuid, txnId) {
   if (txnId > 1) return '';
 
   var res = [];
-  connect_plugins.forEach(function(plugin) {
+  connect_plugins.forEach(function (plugin) {
     var nv = shorten_pi(plugin);
     var newc = '';
     var tit = '';
@@ -75,13 +75,13 @@ function newRowHelo (data, uuid, txnId) {
   if (txnId > 1) return '';
 
   var cols = [];
-  helo_plugins.forEach(function(plugin) {
+  helo_plugins.forEach(function (plugin) {
     cols.push('<td class=' +css_safe(plugin)+ '>' + shorten_pi(plugin) + '</td>');
   });
   return cols.join('\n');
 }
 
-function newRow(data, uuid) {
+function newRow (data, uuid) {
 
   var txnId  = uuid.split('_').pop();
   var rowResult = newRowConnectRow1(data, uuid, txnId);
@@ -90,7 +90,7 @@ function newRow(data, uuid) {
         '<td class="mail_from" colspan=' + mail_from_cols + '></td>',
         '<td class="rcpt_to" colspan=' + rcpt_to_cols + '></td>'
     );
-  data_plugins.slice(0,data_cols).forEach(function(plugin) {
+  data_plugins.slice(0,data_cols).forEach(function (plugin) {
     rowResult.push('<td class=' +css_safe(plugin)+ '>' +
             shorten_pi(plugin) + '</td>');
   });
@@ -104,13 +104,13 @@ function newRow(data, uuid) {
   rowResult.push(newRowHelo(data, uuid, txnId));
 
     // transaction data
-  mail_from_plugins.forEach(function(plugin) {
+  mail_from_plugins.forEach(function (plugin) {
     rowResult.push('<td class=' +css_safe(plugin)+ '>' + shorten_pi(plugin) + '</td>');
   });
-  rcpt_to_plugins.forEach(function(plugin) {
+  rcpt_to_plugins.forEach(function (plugin) {
     rowResult.push('<td class=' +css_safe(plugin)+ '>' + shorten_pi(plugin) + '</td>');
   });
-  data_plugins.slice(data_cols,data_plugins.length).forEach(function(plugin) {
+  data_plugins.slice(data_cols,data_plugins.length).forEach(function (plugin) {
     rowResult.push('<td class=' +css_safe(plugin)+ '>' + shorten_pi(plugin) + '</td>');
   });
   rowResult.push('</tr>');
@@ -126,12 +126,12 @@ function newRow(data, uuid) {
     $(rowResult.join('\n')).prependTo("table#connections > tbody");
   }
 
-  connect_plugins.concat(['remote_host','local_port']).forEach(function(plugin) {
+  connect_plugins.concat(['remote_host','local_port']).forEach(function (plugin) {
     $('table#connections > tbody > tr.'+uuid+' > td.'+css_safe(plugin)).tipsy();
   });
 }
 
-function updateRow(row_data, selector) {
+function updateRow (row_data, selector) {
     // each bit of data in the WSS sent object represents a TD in the table
   for (var td_name in row_data) {
 
@@ -161,7 +161,7 @@ function updateRow(row_data, selector) {
   $(selector + ' > td').tipsy();
 }
 
-function httpGetJSON(theUrl) {
+function httpGetJSON (theUrl) {
   var xmlHttp = null;
   xmlHttp = new XMLHttpRequest();
   xmlHttp.open("GET", theUrl, false);
@@ -169,7 +169,7 @@ function httpGetJSON(theUrl) {
   return JSON.parse(xmlHttp.responseText);
 }
 
-function ws_connect() {
+function ws_connect () {
 
   if (!window.location.origin) {
     window.location.origin = window.location.protocol + "//" + window.location.hostname;
@@ -183,7 +183,7 @@ function ws_connect() {
   }
   ws = new WebSocket( config.wss_url );
 
-  ws.onopen = function() {
+  ws.onopen = function () {
         // ws.send('something'); // send a message to the server
         // $('#messages').append("connected ");
     $('span#connect_state').removeClass().addClass('green');
@@ -206,7 +206,7 @@ function ws_connect() {
   var last_insert = 0;
   // var sampled_out = 0;
 
-  ws.onmessage = function(event, flags) {
+  ws.onmessage = function (event, flags) {
     // flags.binary will be set if a binary data is received
     // flags.masked will be set if the data was masked
     var data = JSON.parse(event.data);
@@ -252,11 +252,11 @@ function ws_connect() {
   };
 }
 
-function reconnect() {
-  setTimeout(function() { ws_connect(); }, 3 * 1000);
+function reconnect () {
+  setTimeout(function () { ws_connect(); }, 3 * 1000);
 }
 
-function update_seen(plugin) {
+function update_seen (plugin) {
   if (seen_plugins.indexOf(plugin) !== -1) return;
   if (ignore_seen.indexOf(plugin) !== -1) return;
 
@@ -298,25 +298,25 @@ function update_seen(plugin) {
   return reset_table();
 }
 
-function prune_table() {
+function prune_table () {
   rows_showing++;
   var max = 200;
   if (rows_showing < max) return;
-  $('table#connections > tbody > tr:gt('+(max*3)+')').fadeOut(2000, function() {
+  $('table#connections > tbody > tr:gt('+(max*3)+')').fadeOut(2000, function () {
     $(this).remove();
   });
   rows_showing = $('table#connections > tbody > tr').length;
 }
 
-function reset_table() {
+function reset_table () {
     // after results for a 'new' plugin that we've never seen arrives, remove
     // the old rows so the table formatting isn't b0rked
-  $('table#connections > tbody > tr').fadeOut(5000, function() { $(this).remove(); });
+  $('table#connections > tbody > tr').fadeOut(5000, function () { $(this).remove(); });
   countPhaseCols();
   display_th();
 }
 
-function display_th() {
+function display_th () {
   $('table#connections > thead > tr#labels').html([
     '<th id=id>ID</th>',
     '<th id=connect   colspan='+connect_cols+' title="Characteristics of Remote Host">CONNECT</th>',
