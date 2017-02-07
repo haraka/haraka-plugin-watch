@@ -239,8 +239,8 @@ function ws_connect () {
     if (config.sampling) {
       now = new Date().getTime();
       if ((now - last_insert) < 1000) {
-                // sampled_out++;
-                // $('#messages').append("so:" + sampled_out);
+        // sampled_out++;
+        // $('#messages').append("so:" + sampled_out);
         return;
       }
     }
