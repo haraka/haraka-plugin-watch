@@ -134,11 +134,19 @@ exports.redis_subscribe_all_results = function (next) {
             return;
           }
           break;
+        case 'reset':
+          if (m.result.duration) {
+            wss.broadcast({ uuid: match[1], queue: {
+              newval: m.result.duration.toFixed(1)
+            }});
+            return;
+          }
+          break;
         case 'disconnect':
           if (m.result.duration) {
             wss.broadcast({
               uuid: match[1],
-              queue: { newval: m.result.duration },
+              queue: { newval: m.result.duration.toFixed(1) },
               local_port: { classy: 'bg_white', title: 'disconnected' },
             });
             return;
@@ -180,6 +188,7 @@ exports.redis_subscribe_all_results = function (next) {
         case 'rcpt_to.in_host_list':
         case 'rcpt_to.qmail_deliverable':
           if (m.result.msg) return;
+          if (m.result.skip) return;
           break;
         case 'limit':
           if (m.result.concurrent_count !== undefined) return;
@@ -195,10 +204,10 @@ exports.redis_subscribe_all_results = function (next) {
         case 'data.headers':
           if (m.result.pass) return;
           if (m.result.msg) return;
-          break;
-        case 'rspamd':
-        case 'spamassassin':
-          if (m.result.time) return;
+          if (m.result.skip) return;
+          if (m.result.fail) {
+            if (m.result.fail == 'UA') return;
+          }
           break;
       }
 
@@ -294,12 +303,12 @@ exports.get_connection_results = function (connection) {
     uuid       : connection.uuid,
     local_port : get_local_port(connection),
     remote_host: get_remote_host(connection),
-    tls        : get_tls(connection),
+    // tls        : get_tls(connection),
     auth       : au ? { classy: 'bg_green', title: au } : '',
     relay      : get_relay(connection),
     // helo       : get_helo(connection),
     early      : get_early,
-    queue      : { newval: elapsed(connection.start_time) },
+    queue      : { newval: elapsed(connection.start_time, 1) },
   };
 
   // see if changed since we last sent
@@ -349,6 +358,7 @@ exports.get_plugin_name = function (pi_name) {
   if (/^(queue|auth)\//.test(pi_name)) {
     return pi_name.split('/').shift();
   }
+
   switch (pi_name) {
     case 'connect.fcrdns':
       return 'fcrdns';
@@ -383,6 +393,10 @@ exports.format_any = function (pi_name, r) {
   // title: the value shown in the HTML tooltip
   // classy: color of the square
   switch (pi_name) {
+    case 'access':
+      if (r.whitelist) {
+        return { classy: 'bg_green', title: r.pass }
+      }
     case 'bounce':
       return plugin.format_bounce(r);
     case 'connect.fcrdns':
@@ -405,17 +419,25 @@ exports.format_any = function (pi_name, r) {
     case 'connect.p0f':
     case 'p0f':
       return plugin.format_p0f(r);
+    case 'tls':
+      if (r.enabled) {
+        if (r.verified) {
+          return { classy: 'bg_green', title: JSON.stringify(r) };
+        }
+        return { classy: 'bg_lgreen', title: JSON.stringify(r) };
+      }
+      break;
     case 'data.uribl':
     case 'dnsbl':
       if (r.fail) return { title: r.fail, classy: 'bg_lred' };
       break;
     case 'karma':
-      if (r.score && parseFloat(r.score) !== 0) {
+      if (r.score !== undefined) {
         if (r.score < -8) return { classy: 'bg_red' };
         if (r.score < -3) return { classy: 'bg_lred' };
-        // if (r.score == 0) return { classy: 'bg_white' };
-        if (r.score > 3) return { classy: 'bg_green' };
-        if (r.score > 0) return { classy: 'bg_lgreen' };
+        if (r.score <  0) return { classy: 'bg_yellow' };
+        if (r.score >  3) return { classy: 'bg_green' };
+        if (r.score >= 0) return { classy: 'bg_lgreen' };
       }
       if (r.fail) return { title: r.fail };
       if (r.err) return { title: r.err, classy: 'bg_yellow' };
@@ -459,30 +481,46 @@ exports.format_any = function (pi_name, r) {
     case 'relay':
     case 'known-senders':
     case 'limit':
+      if (r.pass || r.fail) {
+        return plugin.format_default(r);
+      }
+      if (r.err) {
+
+      }
+      break;
+    case 'data.headers':
+      if (r.fail) {
+        if (/^direct/.test(r.fail)) return { classy: 'bg_lred' };
+        if (/^from_match/.test(r.fail)) return { classy: 'bg_yellow' };
+      }
     case 'dkim_verify':
       if (r.pass || r.fail) {
         return plugin.format_default(r);
       }
+      if (r.err) {
+        return { classy: 'bg_yellow', title: r.err }
+      }
       break;
     case 'rspamd':
-      if (r.score) return {
-        classy: r.is_spam === true ? 'bg_red' :
-                r.action  === 'greylist' ? 'bg_grey' :
-                r.is_skipped === true ? '' :
-                r.score > 5 ? 'bg_lred' :
-                r.score < 0 ? 'bg_green' :
-                r.score < 3 ? 'bg_lgreen' : 'bg_yellow',
-        title: r.score,
+      if (r.score !== undefined) return {
+        classy: (r.is_spam === true ? 'bg_red'
+              : r.action  === 'greylist' ? 'bg_grey'
+              : r.is_skipped === true ? ''
+              : r.score > 5 ? 'bg_lred'
+              : r.score < 0 ? 'bg_green'
+              : r.score < 3 ? 'bg_lgreen' : 'bg_yellow'),
+        title: JSON.stringify(r),
       }
       break;
     case 'spamassassin':
-      if (r.hits) {
+      if (r.hits !== undefined) {
         var hits = parseFloat(r.hits);
         return {
           classy: hits > 5 ? 'bg_red' :
                hits > 2 ? 'bg_yellow' :
                hits < 0 ? 'bg_green' : 'bg_lgreen',
-          title: r.flag + ', ' + hits + ' hits, time: ' + r.time,
+          title: JSON.stringify(r),
+          // title: r.flag + ', ' + hits + ' hits, time: ' + r.time,
         }
       }
       break;
@@ -494,12 +532,10 @@ exports.format_any = function (pi_name, r) {
   plugin.loginfo(pi_name);
   plugin.loginfo(r);
 
-  var s = {
+  return {
     title:  plugin.get_title(pi_name, r),
     classy: plugin.get_class(pi_name, r),
   };
-
-  return s;
 };
 
 exports.format_recipient = function (r) {
@@ -615,9 +651,6 @@ exports.get_class = function (pi_name, r) {
                     r.pass.length ? 'bg_lgreen' :
                     r.fail.length ? 'bg_red'    :
                     r.err.length  ? 'bg_yellow' : '';
-    case 'rcpt_to.qmail_deliverable':
-      return (r.pass.length && r.fail.length === 0) ? 'bg_green' :
-                    r.pass.length ? 'bg_lgreen' : '';
     case 'rcpt_to.in_host_list':
       return (r.pass.length && r.fail.length === 0) ? 'bg_green' :
                     r.pass.length ? 'bg_lgreen' : '';
@@ -721,17 +754,6 @@ function get_early (connection) {
   };
 }
 
-function get_tls (connection) {
-  if (!connection.tls.enabled) return {};
-  var tls = connection.notes.tls;
-  if (!tls) { return { classy: 'bg_lgreen' }; }
-  return {
-    classy: tls.verified ? 'bg_green' : 'bg_lgreen',
-    title: (!tls) ? '' : (!tls.cipher) ? '' :
-               'ver=' + tls.cipher.version + ' cipher=' + tls.cipher.name,
-  };
-}
-
 function get_relay (connection) {
   if (!connection.relaying) return { title: 'no'};
   return { title: 'yes', classy: 'bg_green'};
@@ -744,7 +766,7 @@ function elapsed (start, decimal_places) {
     decimal_places = diff > 5 ? 0 : diff > 2 ? 1 : 2;
   }
   else {
-    decimal_places = parseInt(decimal_places);
+    decimal_places = parseInt(decimal_places, 10);
     if (isNaN(decimal_places)) {
       decimal_places = 2;
     }
