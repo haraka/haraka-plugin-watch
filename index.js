@@ -397,6 +397,7 @@ exports.format_any = function (pi_name, r) {
       if (r.whitelist) {
         return { classy: 'bg_green', title: r.pass }
       }
+      break;
     case 'bounce':
       return plugin.format_bounce(r);
     case 'connect.fcrdns':
@@ -481,18 +482,14 @@ exports.format_any = function (pi_name, r) {
     case 'relay':
     case 'known-senders':
     case 'limit':
-      if (r.pass || r.fail) {
-        return plugin.format_default(r);
-      }
-      if (r.err) {
-
-      }
+      if (r.pass || r.fail) return plugin.format_default(r);
       break;
     case 'data.headers':
       if (r.fail) {
         if (/^direct/.test(r.fail)) return { classy: 'bg_lred' };
         if (/^from_match/.test(r.fail)) return { classy: 'bg_yellow' };
       }
+      break;
     case 'dkim_verify':
       if (r.pass || r.fail) {
         return plugin.format_default(r);
