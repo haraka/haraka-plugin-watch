@@ -119,11 +119,11 @@ function newRow (data, uuid) {
     var prevUuid = uuid.split('_').slice(0,2).join('_') + '_' + (txnId - 1);
     var lastRow = $("#connections > tbody > tr." + prevUuid).last();
     if (lastRow) {
-      lastRow.after( $(rowResult.join('\n')) );
+      lastRow.hide().after( $(rowResult.join('\n')) ).fadeIn('slow');
     }
   }
   else {
-    $(rowResult.join('\n')).prependTo("table#connections > tbody");
+    $(rowResult.join('\n')).hide().prependTo("table#connections > tbody").fadeIn(800);
   }
 
   connect_plugins.concat(['remote_host','local_port']).forEach(function (plugin) {
@@ -132,7 +132,7 @@ function newRow (data, uuid) {
 }
 
 function updateRow (row_data, selector) {
-    // each bit of data in the WSS sent object represents a TD in the table
+  // each bit of data in the WSS sent object represents a TD in the table
   for (var td_name in row_data) {
 
     var td = row_data[td_name];
@@ -152,8 +152,8 @@ function updateRow (row_data, selector) {
 
     if (td.classy) {
       $(td_sel)
-                .attr('class', td_name_css)     // reset class
-                .addClass(td.classy).tipsy();
+        .attr('class', td_name_css)     // reset class
+        .addClass(td.classy).tipsy();
     }
     if (td.title)  $(td_sel).attr('title', td.title).tipsy();
     if (td.newval) $(td_sel).html(td.newval).tipsy();
@@ -184,8 +184,8 @@ function ws_connect () {
   ws = new WebSocket( config.wss_url );
 
   ws.onopen = function () {
-        // ws.send('something'); // send a message to the server
-        // $('#messages').append("connected ");
+    // ws.send('something'); // send a message to the server
+    // $('#messages').append("connected ");
     $('span#connect_state').removeClass().addClass('green');
 
     if (config.sampling) {
@@ -309,8 +309,8 @@ function prune_table () {
 }
 
 function reset_table () {
-    // after results for a 'new' plugin that we've never seen arrives, remove
-    // the old rows so the table formatting isn't b0rked
+  // after results for a 'new' plugin that we've never seen arrives, remove
+  // the old rows so the table formatting isn't b0rked
   $('table#connections > tbody > tr').fadeOut(5000, function () { $(this).remove(); });
   countPhaseCols();
   display_th();
@@ -321,8 +321,7 @@ function display_th () {
     '<th id=id>ID</th>',
     '<th id=connect   colspan='+connect_cols+' title="Characteristics of Remote Host">CONNECT</th>',
     '<th id=ehlo      colspan='+helo_cols+' title="RFC5321.EHLO/HELO">HELO</th>',
-    '<th id=mail_from colspan='+
-            mail_from_cols+
+    '<th id=mail_from colspan='+mail_from_cols+
             ' title="Envelope FROM / Envelope Sender / RFC5321.MailFrom / Return-Path / Reverse-PATH">MAIL FROM</th>',
     '<th id=rcpt_to   colspan='+rcpt_to_cols+' title="Envelope Recipient / RFC5321.RcptTo / Forward Path">RCPT TO</th>',
     '<th id=data      colspan='+data_cols+' title="DATA, the message content, comprised of the headers and body).">DATA</th>',
@@ -331,9 +330,10 @@ function display_th () {
     ).tipsy();
   $('table#connections > thead > tr#labels > th').tipsy();
   $('table#connections > tfoot > tr#helptext')
-        .html('<td colspan='+total_cols+
-            '>For a good time: <a href="telnet://' +
-            window.location.hostname + ':587">nc '+ window.location.hostname + ' 587</a></td>');
+    .html('<td colspan='+total_cols+
+      '>For a good time: <a href="telnet://' +
+      window.location.hostname + ':587">nc ' +
+      window.location.hostname + ' 587</a></td>');
 }
 
 function countPhaseCols () {
@@ -349,8 +349,8 @@ function countPhaseCols () {
 
 function css_safe (str) {
   return str.replace(/([^0-9a-zA-Z\-\_])/g,'_');
-    // http://www.w3.org/TR/CSS21/syndata.html#characters
-    // identifiers can contain only [a-zA-Z0-9] <snip> plus - and _
+  // http://www.w3.org/TR/CSS21/syndata.html#characters
+  // identifiers can contain only [a-zA-Z0-9] <snip> plus - and _
 }
 
 function shorten_pi (name) {
@@ -382,10 +382,10 @@ function shorten_pi (name) {
 }
 
 function get_css_safe_uuid (uuid) {
-    // UUID formats
-    // CAF2B05E-5382-4E65-A51E-7DEE6EF31F80    // bits.length=1
-    // CAF2B05E-5382-4E65-A51E-7DEE6EF31F80.1  // bits.length=2
-    // CAF2B05E-5382-4E65-A51E-7DEE6EF31F80.2
+  // UUID formats
+  // CAF2B05E-5382-4E65-A51E-7DEE6EF31F80    // bits.length=1
+  // CAF2B05E-5382-4E65-A51E-7DEE6EF31F80.1  // bits.length=2
+  // CAF2B05E-5382-4E65-A51E-7DEE6EF31F80.2
 
   var bits = uuid.split('.');
   if (bits.length === 1) { bits[1] = 1; }
