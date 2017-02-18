@@ -148,14 +148,17 @@ function updateRow (row_data, selector) {
 
     update_seen(td_name);
 
-        // $('#messages').append(', '+td_name+': ');
+    // $('#messages').append(', '+td_name+': ');
 
     if (td.classy) {
       $(td_sel)
         .attr('class', td_name_css)     // reset class
         .addClass(td.classy).tipsy();
     }
-    if (td.title)  $(td_sel).attr('title', td.title).tipsy();
+    if (td.title) {
+      $(td_sel).attr('title',
+        ($(td_sel).attr('title') || '') + ' ' + td.title).tipsy();
+    }
     if (td.newval) $(td_sel).html(td.newval).tipsy();
   }
   $(selector + ' > td').tipsy();

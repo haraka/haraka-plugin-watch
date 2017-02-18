@@ -176,7 +176,7 @@ exports.redis_subscribe_all_results = function (next) {
           if (m.result.awards) return;
           if (m.result.msg) return;
           if (m.result.todo) return;
-          if (m.result.emit) return;
+          // if (m.result.emit) return;
           break;
         case 'mail_from.is_resolvable':
           if (m.result.msg) return;
@@ -408,15 +408,20 @@ exports.format_any = function (pi_name, r) {
       return plugin.format_asn(r);
     case 'connect.geoip':
     case 'geoip':
-      if (r.human) return { title: r.human }
+      var f = {};
+      if (r.human) {
+        f.title = r.human;
+        f.newval = r.human.substring(0, 6);
+      }
       if (r.distance) {
         if (parseInt(r.distance, 10) > 4000 ) {
-          return { classy: 'bg_red' };
+          f.classy = 'bg_red';
         }
-        return { classy: 'bg_green' };
+        else {
+          f.classy = 'bg_green';
+        }
       }
-      if (r.country) return { newval: r.country };
-      return {};
+      return f;
     case 'connect.p0f':
     case 'p0f':
       return plugin.format_p0f(r);
@@ -434,14 +439,15 @@ exports.format_any = function (pi_name, r) {
       break;
     case 'karma':
       if (r.score !== undefined) {
-        if (r.score < -8) return { classy: 'bg_red' };
-        if (r.score < -3) return { classy: 'bg_lred' };
-        if (r.score <  0) return { classy: 'bg_yellow' };
-        if (r.score >  3) return { classy: 'bg_green' };
-        if (r.score >= 0) return { classy: 'bg_lgreen' };
+        if (r.score < -8) return { classy: 'bg_red', title: r.score };
+        if (r.score < -3) return { classy: 'bg_lred', title: r.score };
+        if (r.score <  0) return { classy: 'bg_yellow', title: r.score };
+        if (r.score >  3) return { classy: 'bg_green', title: r.score };
+        if (r.score >= 0) return { classy: 'bg_lgreen', title: r.score };
       }
       if (r.fail) return { title: r.fail };
       if (r.err) return { title: r.err, classy: 'bg_yellow' };
+      if (r.emit) return {};
       break;
     case 'mail_from':
       if (r.address) return {
@@ -460,6 +466,12 @@ exports.format_any = function (pi_name, r) {
             break;
           case 'Pass':
             res.classy = 'bg_green';
+            break;
+          case 'Fail':
+            res.classy = 'bg_red';
+            break;
+          case 'SoftFail':
+            res.classy = 'bg_yellow';
             break;
         }
         return res;
