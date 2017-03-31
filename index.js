@@ -437,10 +437,6 @@ exports.format_any = function (pi_name, r) {
       if (r.fail) return { classy: 'bg_red', title: r.fail };
       if (r.msg === '') return {};
       break;
-    case 'queue/smtp_forward':
-      if (r.pass) return { classy: 'bg_green', title: r.pass };
-      if (r.fail) return { classy: 'bg_red', title: r.fail };
-      if (r.skip) return {};
   }
 
   plugin.loginfo(pi_name);

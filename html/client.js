@@ -90,32 +90,32 @@ function newRow (data, uuid) {
   var rowResult = newRowConnectRow1(data, uuid, txnId);
 
   rowResult.push(
-        '<td class="mail_from" colspan=' + mail_from_cols + '></td>',
-        '<td class="rcpt_to" colspan=' + rcpt_to_cols + '></td>'
-    );
+    '<td class="mail_from" colspan=' + mail_from_cols + '></td>',
+    '<td class="rcpt_to" colspan=' + rcpt_to_cols + '></td>'
+  );
   data_plugins.slice(0,data_cols).forEach(function (plugin) {
     rowResult.push('<td class=' +css_safe(plugin)+ '>' +
-            shorten_pi(plugin) + '</td>');
+      shorten_pi(plugin) + '</td>');
   });
 
   rowResult.push(
-        '<td class=queue title="not queued" rowspan=2></td></tr>',
-        '<tr class="'+uuid+'">'
-    );
+    '<td class=queue title="not queued" rowspan=2></td></tr>',
+    '<tr class="'+uuid+'">'
+  );
 
-  rowResult.push( newRowConnectRow2(data, uuid, txnId) );
+  rowResult.push(newRowConnectRow2(data, uuid, txnId));
   rowResult.push(newRowHelo(data, uuid, txnId));
 
-    // transaction data
+  // transaction data
   mail_from_plugins.forEach(function (plugin) {
     rowResult.push('<td class=' +css_safe(plugin)+ '>' + shorten_pi(plugin) + '</td>');
-  });
+  })
   rcpt_to_plugins.forEach(function (plugin) {
     rowResult.push('<td class=' +css_safe(plugin)+ '>' + shorten_pi(plugin) + '</td>');
-  });
+  })
   data_plugins.slice(data_cols,data_plugins.length).forEach(function (plugin) {
     rowResult.push('<td class=' +css_safe(plugin)+ '>' + shorten_pi(plugin) + '</td>');
-  });
+  })
   rowResult.push('</tr>');
 
   if (txnId > 1) {
@@ -372,6 +372,7 @@ function shorten_pi (name) {
     'smtp_forward': 'forward',
     'attachment': 'attach'
   };
+
   if (trims[name]) return trims[name];
 
   var parts = name.split('.');
