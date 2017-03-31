@@ -289,9 +289,9 @@ exports.format_any = function (pi_name, r) {
   // classy: color of the square
   switch (pi_name) {
     case 'access':
-      if (r.whitelist) {
-        return { classy: 'bg_green', title: r.pass }
-      }
+      if (r.whitelist) return { classy: 'bg_green', title: r.pass }
+      if (r.fail)      return { classy: 'bg_red', title: r.fail }
+      if (r.skip)      return {};
       break;
     case 'bounce':
       return plugin.format_bounce(r);
@@ -341,8 +341,10 @@ exports.format_any = function (pi_name, r) {
         if (r.score >= 0) return { classy: 'bg_lgreen', title: r.score };
       }
       if (r.fail) return { title: r.fail };
+
       if (r.err) return { title: r.err, classy: 'bg_yellow' };
       if (r.emit) return {};
+      if (r.pass) return { classy: 'bg_green' };
       break;
     case 'mail_from':
       if (r.address) return {
@@ -390,6 +392,7 @@ exports.format_any = function (pi_name, r) {
     case 'known-senders':
     case 'limit':
       if (r.pass || r.fail) return plugin.format_default(r);
+      if (r.skip) return {};
       break;
     case 'data.headers':
       if (r.fail) {
@@ -434,6 +437,10 @@ exports.format_any = function (pi_name, r) {
       if (r.fail) return { classy: 'bg_red', title: r.fail };
       if (r.msg === '') return {};
       break;
+    case 'queue/smtp_forward':
+      if (r.pass) return { classy: 'bg_green', title: r.pass };
+      if (r.fail) return { classy: 'bg_red', title: r.fail };
+      if (r.skip) return {};
   }
 
   plugin.loginfo(pi_name);
@@ -484,6 +491,7 @@ exports.format_asn = function (r) {
   if (r.pass) return { classy: 'bg_green' };
   if (r.fail) return { title: r.fail, classy: 'bg_lred' };
   if (r.asn)  return { newval: r.asn };
+  if (r.asn_score) return {}; // extra
   this.loginfo(r);
   return {};
 }
