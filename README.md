@@ -1,6 +1,10 @@
 # watch
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/haraka/haraka-plugin-watch.svg)](https://greenkeeper.io/)
+[![Build Status][ci-img]][ci-url]
+[![Build status][ci-win-img]][ci-win-url]
+[![Greenkeeper badge][gk-img]][gk-url]
+[![NPM][npm-img]][npm-url]
+
 
 Watch live SMTP traffic in a web interface.
 
@@ -32,4 +36,26 @@ details.
 * Yellow: poor results, but not awful.
 * Light red: tests failed, but no rejection
 * Red: tests failed causing rejection
+
+## Config
+
+Config options are set in watch.ini.
+
+* sampling: boolean, limit display connections to one-per-second
+* wss.url: specify the WSS url (default: same scheme, host, port as http)
+* wss.htdocs: an alternate docroot (default ./html)
+
+## Troubleshooting
+
+* If you aren't getting activity, make sure your web browser is able to establish the websockets connection. Either use straight http (only) or have a valid signed TLS certificate. The security for websockets connections is more strict than plain HTTP(s).
+
+
+[ci-img]: https://travis-ci.org/haraka/haraka-plugin-watch.svg?branch=master
+[ci-url]: https://travis-ci.org/haraka/haraka-plugin-watch
+[ci-win-img]: https://ci.appveyor.com/api/projects/status/yxjfxu5mb4n94ho3?svg=true
+[ci-win-url]: https://ci.appveyor.com/project/msimerson/haraka-plugin-watch
+[gk-img]: https://badges.greenkeeper.io/haraka/haraka-plugin-watch.svg
+[gk-url]: https://greenkeeper.io/
+[npm-img]: https://nodei.co/npm/haraka-plugin-watch.png
+[npm-url]: https://www.npmjs.com/package/haraka-plugin-watch
 

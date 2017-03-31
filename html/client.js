@@ -11,14 +11,17 @@ var total_cols;
 var cxn_cols;
 var txn_cols;
 
-var connect_plugins  = ['geoip','asn','p0f','dnsbl', 'early_talker', 'fcrdns'];
+var connect_plugins  = ['geoip','asn','p0f','dnsbl', 'access', 'fcrdns'];
 var helo_plugins     = ['helo.checks', 'tls', 'auth', 'relay', 'spf'];
 var mail_from_plugins= ['spf', 'mail_from.is_resolvable', 'known-senders'];
-var rcpt_to_plugins  = ['access', 'rcpt_to.in_host_list', 'rcpt_to.qmail_deliverable'];
+var rcpt_to_plugins  = [
+  'queue/smtp_forward',
+  'rcpt_to.in_host_list',
+  'rcpt_to.qmail_deliverable'
+];
 var data_plugins     = [
-  'bounce','data.headers','karma','spamassassin','rspamd',
-  'clamd','avg','data.uribl','limit','dkim_sign','dkim_verify',
-  'attachment'
+  'early_talker', 'bounce','data.headers','karma','spamassassin','rspamd',
+  'clamd','avg','data.uribl','limit','dkim','attachment'
 ];
 // 'seen' plugins are ones we've seen data reported for. When data from a new
 // plugin arrives, it gets added to one of the sections above and the table is
@@ -364,8 +367,10 @@ function shorten_pi (name) {
     'rcpt_to.qmail_deliverable': 'qmd',
     'rcpt_to.in_host_list': 'host_list',
     'mail_from.is_resolvable': 'dns',
-    'dkim_verify' : 'dkim',
     'known-senders' : 'known',
+    'queue/smtp_forward': 'forward',
+    'smtp_forward': 'forward',
+    'attachment': 'attach'
   };
   if (trims[name]) return trims[name];
 
