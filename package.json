@@ -27,7 +27,7 @@
   "homepage": "https://github.com/haraka/haraka-plugin-watch#readme",
   "dependencies": {
     "async": "^2.0",
-    "ws": "^2.0.0"
+    "ws": "^3.0.0"
   },
   "devDependencies": {
     "eslint": ">=3",
