@@ -16,7 +16,7 @@ exports.register = function () {
   plugin.register_hook('deny',         'w_deny');
   plugin.register_hook('queue_ok',     'queue_ok');
 
-  server.notes.results_redis_publish = true;
+  plugin.server.notes.results_redis_publish = true;
 }
 
 exports.load_watch_ini = function () {
