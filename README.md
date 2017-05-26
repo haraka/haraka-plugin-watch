@@ -50,6 +50,7 @@ Config options are set in watch.ini.
 * If you aren't getting activity, make sure your web browser is able to establish the websockets connection. Either use straight http (only) or have a valid signed TLS certificate. The security for websockets connections is more strict than plain HTTP(s).
 
 
+
 [ci-img]: https://travis-ci.org/haraka/haraka-plugin-watch.svg?branch=master
 [ci-url]: https://travis-ci.org/haraka/haraka-plugin-watch
 [ci-win-img]: https://ci.appveyor.com/api/projects/status/yxjfxu5mb4n94ho3?svg=true
