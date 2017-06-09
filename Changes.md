@@ -1,4 +1,9 @@
 
+### 1.0.8 - 2017-06-08
+
+- handle malformed haraka results
+- enable haraka-results publishing #14
+
 ### 1.0.7 - 2017-03-31
 
 - add default config/watch.ini file 

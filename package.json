@@ -1,6 +1,6 @@
 {
   "name": "haraka-plugin-watch",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Watch live SMTP traffic in a web interface",
   "main": "index.js",
   "scripts": {
@@ -27,6 +27,7 @@
   "homepage": "https://github.com/haraka/haraka-plugin-watch#readme",
   "dependencies": {
     "async": "^2.0",
+    "haraka-plugin-redis": "^1.0.5",
     "ws": "^3.0.0"
   },
   "devDependencies": {
