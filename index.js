@@ -152,6 +152,11 @@ exports.redis_subscribe_all_results = function (next) {
 
       var m = JSON.parse(message);
 
+      if (typeof m.result !== 'object') {
+        plugin.logerror(`garbage was published on ${channel}: ${m.result}`);
+        return;
+      }
+
       switch (m.plugin) {
         case 'local':
           if (m.result.port) {
