@@ -112,7 +112,7 @@ exports.w_deny = function (next, connection, params) {
 
   var req = {
     uuid: connection.transaction ? connection.transaction.uuid
-                                     : connection.uuid,
+      : connection.uuid,
     local_port: { classy: 'bg_white', title: 'disconnected' },
     remote_host:  get_remote_host(connection),
   };
@@ -356,7 +356,7 @@ exports.format_any = function (pi_name, r) {
     case 'mail_from':
       if (r.address) return {
         newval: (r.address && r.address.length > 22) ?
-                ('..'+r.address.substring(r.address.length - 22)) : r.address,
+          ('..'+r.address.substring(r.address.length - 22)) : r.address,
         classy: 'black',
         title:  r.address,
       }
@@ -419,11 +419,11 @@ exports.format_any = function (pi_name, r) {
     case 'rspamd':
       if (r.score !== undefined) return {
         classy: (r.is_spam === true ? 'bg_red'
-              : r.action  === 'greylist' ? 'bg_grey'
-              : r.is_skipped === true ? ''
+          : r.action  === 'greylist' ? 'bg_grey'
+            : r.is_skipped === true ? ''
               : r.score > 5 ? 'bg_lred'
-              : r.score < 0 ? 'bg_green'
-              : r.score < 3 ? 'bg_lgreen' : 'bg_yellow'),
+                : r.score < 0 ? 'bg_green'
+                  : r.score < 3 ? 'bg_lgreen' : 'bg_yellow'),
         title: JSON.stringify(r),
       }
       break;
@@ -432,8 +432,8 @@ exports.format_any = function (pi_name, r) {
         var hits = parseFloat(r.hits);
         return {
           classy: hits > 5 ? 'bg_red' :
-               hits > 2 ? 'bg_yellow' :
-               hits < 0 ? 'bg_green' : 'bg_lgreen',
+            hits > 2 ? 'bg_yellow' :
+              hits < 0 ? 'bg_green' : 'bg_lgreen',
           title: JSON.stringify(r),
           // title: r.flag + ', ' + hits + ' hits, time: ' + r.time,
         }
@@ -553,37 +553,37 @@ exports.get_class = function (pi_name, r) {
       var comment = (r.reason && r.reason.length) ? r.reason[0].comment : '';
       return r.result === 'pass'
         ? 'bg_green' : comment === 'no policy'
-        ? 'bg_yellow' : 'bg_red';
+          ? 'bg_yellow' : 'bg_red';
     case 'karma':
       if (r.score === undefined) {
         var history = parseFloat(r.history) || 0;
         return history >  2 ? 'bg_green' :
-                       history < -1 ? 'bg_red'   : 'bg_yellow';
+          history < -1 ? 'bg_red'   : 'bg_yellow';
       }
       var score = parseFloat(r.score) || 0;
       return score > 3  ? 'bg_green'  :
-                   score > 0  ? 'bg_lgreen' :
-                   score < -3 ? 'bg_red'    :
-                   score < 0  ? 'bg_lred'   : 'bg_yellow';
+        score > 0  ? 'bg_lgreen' :
+          score < -3 ? 'bg_red'    :
+            score < 0  ? 'bg_lred'   : 'bg_yellow';
     case 'relay':
       return (r.pass.length && r.fail.length === 0) ? 'bg_green' :
-                    r.pass.length ? 'bg_lgreen' :
-                    r.fail.length ? 'bg_red'    :
-                    r.err.length  ? 'bg_yellow' : '';
+        r.pass.length ? 'bg_lgreen' :
+          r.fail.length ? 'bg_red'    :
+            r.err.length  ? 'bg_yellow' : '';
     case 'rcpt_to.in_host_list':
       return (r.pass.length && r.fail.length === 0) ? 'bg_green' :
-                    r.pass.length ? 'bg_lgreen' : '';
+        r.pass.length ? 'bg_lgreen' : '';
     case 'spf':
       return r.result === 'Pass' ? 'bg_green' :
-                   r.result === 'Neutral' ? 'bg_lgreen' :
-                   /fail/i.test(r.result) ? 'bg_red' :
-                   /error/i.test(r.result) ? 'bg_yellow' : '';
+        r.result === 'Neutral' ? 'bg_lgreen' :
+          /fail/i.test(r.result) ? 'bg_red' :
+            /error/i.test(r.result) ? 'bg_yellow' : '';
     default:
       return (r.pass.length && r.fail.length === 0) ? 'bg_green' :
-                    r.pass.length ? 'bg_lgreen' :
-                    r.fail.length ? 'bg_red'    :
-                    r.err.length  ? 'bg_yellow' :
-                                    'bg_lgrey';
+        r.pass.length ? 'bg_lgreen' :
+          r.fail.length ? 'bg_red'    :
+            r.err.length  ? 'bg_yellow' :
+              'bg_lgrey';
   }
 }
 
@@ -592,9 +592,9 @@ exports.get_title = function (pi_name, r) {
   switch (pi_name) {
     case 'data.dmarc':
       var comment = (r.reason && r.reason.length) ?
-                           r.reason[0].comment : '';
+        r.reason[0].comment : '';
       return r.result === 'pass' ? r.result :
-                    [ r.result, r.disposition, comment ].join(', ');
+        [ r.result, r.disposition, comment ].join(', ');
     case 'queue':
       return r.human;
     default:

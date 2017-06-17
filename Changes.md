@@ -1,4 +1,8 @@
 
+### 1.0.9 - 2017-06-16
+
+- eslint 4 compat fixes
+
 ### 1.0.8 - 2017-06-08
 
 - handle malformed haraka results

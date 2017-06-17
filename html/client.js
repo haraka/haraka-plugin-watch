@@ -27,7 +27,7 @@ var data_plugins     = [
 // plugin arrives, it gets added to one of the sections above and the table is
 // redrawn.
 var seen_plugins = connect_plugins.concat(helo_plugins, mail_from_plugins,
-                   rcpt_to_plugins, data_plugins);
+  rcpt_to_plugins, data_plugins);
 var ignore_seen  = ['local_port', 'remote_host', 'helo', 'mail_from', 'rcpt_to', 'queue'];
 
 var rows_showing = 0;
@@ -251,7 +251,7 @@ function ws_connect () {
       }
     }
 
-        // time to send a new row
+    // time to send a new row
     newRow(data, css_valid_uuid);
     prune_table();
     last_insert = now;
@@ -333,7 +333,7 @@ function display_th () {
     '<th id=data      colspan='+data_cols+' title="DATA, the message content, comprised of the headers and body).">DATA</th>',
     '<th id=queue title="When a message is accepted, it is delivered into the local mail queue.">QUEUE</th>',
   ].join('\n\t')
-    ).tipsy();
+  ).tipsy();
   $('table#connections > thead > tr#labels > th').tipsy();
   $('table#connections > tfoot > tr#helptext')
     .html('<td colspan='+total_cols+

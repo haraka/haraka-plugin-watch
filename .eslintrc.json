@@ -1,6 +1,6 @@
 {
   "env": {
-      "mocha": true
+    "mocha": true
   },
   "globals": {
     "server": true,
@@ -16,8 +16,7 @@
   ],
   "extends": [ "eslint:recommended", "plugin:haraka/recommended" ],
   "rules": {
-    "no-console": 0,
     "indent": [2, 2, {"SwitchCase": 1}],
-    "no-empty": ["error", { "allowEmptyCatch": true }]
+    "no-useless-escape": 0
   }
 }
