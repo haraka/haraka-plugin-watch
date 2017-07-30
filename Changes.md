@@ -1,4 +1,10 @@
 
+### 1.0.11 - 2017-07-30
+
+- update broadcast syntax to be compatible with ws > 1
+- some ES6 syntax updates (var/let, arrow funcs)
+- remove async dependency (unused)
+
 ### 1.0.10 - 2017-06-26
 
 - revert #14, it breaks current and future Haraka deployments

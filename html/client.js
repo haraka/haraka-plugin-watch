@@ -1,40 +1,40 @@
 'use strict';
 /* global window, XMLHttpRequest, WebSocket */
 
-var ws;
-var connect_cols;
-var helo_cols;
-var mail_from_cols;
-var rcpt_to_cols;
-var data_cols;
-var total_cols;
-var cxn_cols;
-var txn_cols;
+let ws;
+let connect_cols;
+let helo_cols;
+let mail_from_cols;
+let rcpt_to_cols;
+let data_cols;
+let total_cols;
+let cxn_cols;
+let txn_cols;
 
-var connect_plugins  = ['geoip','asn','p0f','dnsbl', 'access', 'fcrdns'];
-var helo_plugins     = ['helo.checks', 'tls', 'auth', 'relay', 'spf'];
-var mail_from_plugins= ['spf', 'mail_from.is_resolvable', 'known-senders'];
-var rcpt_to_plugins  = [
+let connect_plugins  = ['geoip','asn','p0f','dnsbl', 'access', 'fcrdns'];
+let helo_plugins     = ['helo.checks', 'tls', 'auth', 'relay', 'spf'];
+let mail_from_plugins= ['spf', 'mail_from.is_resolvable', 'known-senders'];
+let rcpt_to_plugins  = [
   'queue/smtp_forward',
   'rcpt_to.in_host_list',
   'rcpt_to.qmail_deliverable'
 ];
-var data_plugins     = [
+let data_plugins     = [
   'early_talker', 'bounce','data.headers','karma','spamassassin','rspamd',
   'clamd','avg','data.uribl','limit','dkim','attachment'
 ];
 // 'seen' plugins are ones we've seen data reported for. When data from a new
 // plugin arrives, it gets added to one of the sections above and the table is
 // redrawn.
-var seen_plugins = connect_plugins.concat(helo_plugins, mail_from_plugins,
+let seen_plugins = connect_plugins.concat(helo_plugins, mail_from_plugins,
   rcpt_to_plugins, data_plugins);
-var ignore_seen  = ['local_port', 'remote_host', 'helo', 'mail_from', 'rcpt_to', 'queue'];
+let ignore_seen  = ['local_port', 'remote_host', 'helo', 'mail_from', 'rcpt_to', 'queue'];
 
-var rows_showing = 0;
+let rows_showing = 0;
 
 function newRowConnectRow1 (data, uuid, txnId) {
-  var host = data.remote_host || { title: '', newval: ''};
-  var port = data.local_port ? (data.local_port.newval || '25') : '25';
+  let host = data.remote_host || { title: '', newval: ''};
+  let port = data.local_port ? (data.local_port.newval || '25') : '25';
 
   if (txnId > 1) {
     return [
@@ -58,11 +58,11 @@ function newRowConnectRow2 (data, uuid, txnId) {
 
   if (txnId > 1) return '';
 
-  var res = [];
-  connect_plugins.forEach(function (plugin) {
-    var nv = shorten_pi(plugin);
-    var newc = '';
-    var tit = '';
+  let res = [];
+  connect_plugins.forEach(plugin => {
+    let nv = shorten_pi(plugin);
+    let newc = '';
+    let tit = '';
     if (data[plugin]) {       // not always updated
       if (data[plugin].classy) newc = data[plugin].classy;
       if (data[plugin].newval) nv   = data[plugin].newval;
@@ -77,8 +77,8 @@ function newRowHelo (data, uuid, txnId) {
 
   if (txnId > 1) return '';
 
-  var cols = [];
-  helo_plugins.forEach(function (plugin) {
+  let cols = [];
+  helo_plugins.forEach(plugin => {
     cols.push('<td class=' +css_safe(plugin)+ '>' + shorten_pi(plugin) + '</td>');
   });
   return cols.join('\n');
@@ -86,14 +86,14 @@ function newRowHelo (data, uuid, txnId) {
 
 function newRow (data, uuid) {
 
-  var txnId  = uuid.split('_').pop();
-  var rowResult = newRowConnectRow1(data, uuid, txnId);
+  let txnId  = uuid.split('_').pop();
+  let rowResult = newRowConnectRow1(data, uuid, txnId);
 
   rowResult.push(
     '<td class="mail_from" colspan=' + mail_from_cols + '></td>',
     '<td class="rcpt_to" colspan=' + rcpt_to_cols + '></td>'
   );
-  data_plugins.slice(0,data_cols).forEach(function (plugin) {
+  data_plugins.slice(0,data_cols).forEach(plugin => {
     rowResult.push('<td class=' +css_safe(plugin)+ '>' +
       shorten_pi(plugin) + '</td>');
   });
@@ -107,20 +107,20 @@ function newRow (data, uuid) {
   rowResult.push(newRowHelo(data, uuid, txnId));
 
   // transaction data
-  mail_from_plugins.forEach(function (plugin) {
+  mail_from_plugins.forEach((plugin) => {
     rowResult.push('<td class=' +css_safe(plugin)+ '>' + shorten_pi(plugin) + '</td>');
   })
-  rcpt_to_plugins.forEach(function (plugin) {
+  rcpt_to_plugins.forEach(plugin => {
     rowResult.push('<td class=' +css_safe(plugin)+ '>' + shorten_pi(plugin) + '</td>');
   })
-  data_plugins.slice(data_cols,data_plugins.length).forEach(function (plugin) {
+  data_plugins.slice(data_cols,data_plugins.length).forEach(plugin => {
     rowResult.push('<td class=' +css_safe(plugin)+ '>' + shorten_pi(plugin) + '</td>');
   })
   rowResult.push('</tr>');
 
   if (txnId > 1) {
-    var prevUuid = uuid.split('_').slice(0,2).join('_') + '_' + (txnId - 1);
-    var lastRow = $("#connections > tbody > tr." + prevUuid).last();
+    let prevUuid = uuid.split('_').slice(0,2).join('_') + '_' + (txnId - 1);
+    let lastRow = $("#connections > tbody > tr." + prevUuid).last();
     if (lastRow) {
       lastRow.hide().after( $(rowResult.join('\n')) ).fadeIn('slow');
     }
@@ -129,20 +129,20 @@ function newRow (data, uuid) {
     $(rowResult.join('\n')).hide().prependTo("table#connections > tbody").fadeIn(800);
   }
 
-  connect_plugins.concat(['remote_host','local_port']).forEach(function (plugin) {
+  connect_plugins.concat(['remote_host','local_port']).forEach(plugin => {
     $('table#connections > tbody > tr.'+uuid+' > td.'+css_safe(plugin)).tipsy();
   });
 }
 
 function updateRow (row_data, selector) {
   // each bit of data in the WSS sent object represents a TD in the table
-  for (var td_name in row_data) {
+  for (let td_name in row_data) {
 
-    var td = row_data[td_name];
+    let td = row_data[td_name];
     if (typeof td !== 'object' ) continue;
 
-    var td_name_css = css_safe(td_name);
-    var td_sel = selector + ' > td.' + td_name_css;
+    let td_name_css = css_safe(td_name);
+    let td_sel = selector + ' > td.' + td_name_css;
 
     if (td_name === 'spf') {
       if (td.scope === 'helo') { td_sel = td_sel + ':first'; }
@@ -168,7 +168,7 @@ function updateRow (row_data, selector) {
 }
 
 function httpGetJSON (theUrl) {
-  var xmlHttp = null;
+  let xmlHttp = null;
   xmlHttp = new XMLHttpRequest();
   xmlHttp.open("GET", theUrl, false);
   xmlHttp.send(null);
@@ -182,7 +182,7 @@ function ws_connect () {
     if (window.location.port) window.location.origin += ':' + window.location.port;
   }
 
-  var config = httpGetJSON(window.location.origin + '/watch/wss_conf');
+  let config = httpGetJSON(window.location.origin + '/watch/wss_conf');
   if (!config.wss_url) {
     config.wss_url = 'wss://' + window.location.hostname;
     if (window.location.port) config.wss_url += ':' + window.location.port;
@@ -209,16 +209,17 @@ function ws_connect () {
     reconnect();
   };
 
-  var last_insert = 0;
-  // var sampled_out = 0;
+  let last_insert = 0;
+  // let sampled_out = 0;
 
   ws.onmessage = function (event, flags) {
     // flags.binary will be set if a binary data is received
     // flags.masked will be set if the data was masked
-    var data = JSON.parse(event.data);
+    let data = JSON.parse(event.data);
 
     if (data.msg) {
       $('#messages').append(data.msg + " ");
+      return;
     }
 
     if (data.watchers) {
@@ -231,8 +232,8 @@ function ws_connect () {
       return;
     }
 
-    var css_valid_uuid = get_css_safe_uuid(data.uuid);
-    var selector = 'table#connections > tbody > tr.' + css_valid_uuid;
+    let css_valid_uuid = get_css_safe_uuid(data.uuid);
+    let selector = 'table#connections > tbody > tr.' + css_valid_uuid;
 
     if ( $(selector).length ) {         // if the row exists
       updateRow(data, selector);
@@ -240,7 +241,7 @@ function ws_connect () {
     }
 
     // row doesn't exist (yet)
-    var now;
+    let now;
 
     if (config.sampling) {
       now = new Date().getTime();
@@ -268,7 +269,7 @@ function update_seen (plugin) {
 
   seen_plugins.push(plugin);
 
-  var bits = plugin.split('.');
+  let bits = plugin.split('.');
   if (bits.length === 2) {
     switch (bits[0]) {    // phase prefix
       case 'connect':
@@ -306,9 +307,9 @@ function update_seen (plugin) {
 
 function prune_table () {
   rows_showing++;
-  var max = 200;
+  let max = 200;
   if (rows_showing < max) return;
-  $('table#connections > tbody > tr:gt('+(max*3)+')').fadeOut(2000, function () {
+  $('table#connections > tbody > tr:gt('+(max*3)+')').fadeOut(2000, () => {
     $(this).remove();
   });
   rows_showing = $('table#connections > tbody > tr').length;
@@ -317,7 +318,7 @@ function prune_table () {
 function reset_table () {
   // after results for a 'new' plugin that we've never seen arrives, remove
   // the old rows so the table formatting isn't b0rked
-  $('table#connections > tbody > tr').fadeOut(5000, function () { $(this).remove(); });
+  $('table#connections > tbody > tr').fadeOut(5000, () => { $(this).remove(); });
   countPhaseCols();
   display_th();
 }
@@ -361,7 +362,7 @@ function css_safe (str) {
 
 function shorten_pi (name) {
 
-  var trims = {
+  let trims = {
     spamassassin: 'spam',
     early_talker: 'early',
     'rcpt_to.qmail_deliverable': 'qmd',
@@ -375,7 +376,7 @@ function shorten_pi (name) {
 
   if (trims[name]) return trims[name];
 
-  var parts = name.split('.');
+  let parts = name.split('.');
 
   switch (parts[0]) {
     case 'helo':
@@ -396,7 +397,7 @@ function get_css_safe_uuid (uuid) {
   // CAF2B05E-5382-4E65-A51E-7DEE6EF31F80.1  // bits.length=2
   // CAF2B05E-5382-4E65-A51E-7DEE6EF31F80.2
 
-  var bits = uuid.split('.');
+  let bits = uuid.split('.');
   if (bits.length === 1) { bits[1] = 1; }
 
   return 'aa_' + bits[0].replace(/[_-]/g, '') + '_' + bits[1];
