@@ -1,7 +1,9 @@
 'use strict';
 
-var wss = { broadcast: function () {} };
-var watchers = 0;
+const WebSocket = require('ws');
+
+let wss = { broadcast: function () {} };
+let watchers = 0;
 
 exports.register = function () {
   var plugin = this;
@@ -66,30 +68,32 @@ exports.hook_init_wss = function (next, server) {
     // broadcast updated watcher count
     wss.broadcast({ watchers: watchers });
 
-    // plugin.logdebug("client connected: " + Object.keys(ws));
-    //
+    plugin.logdebug("wss client connected: " + Object.keys(ws));
+
     // send message to just this websocket
-    // ws.send('welcome!');
+    // ws.send(JSON.stringify({ msg: 'welcome!' });
 
     ws.on('error', (error) => {
-      plugin.logdebug("client error: " + error);
+      plugin.logerror("client error: " + error);
     })
 
     ws.on('close', (code, message) => {
-      plugin.logdebug("client closed: " + message + '('+code+')');
+      plugin.loginfo(`client closed: ${message} (${code})`);
       watchers--;
     })
 
     ws.on('message', (message) => {
-      plugin.logdebug("received from client: " + message);
+      plugin.logdebug(`from client: ${message}`);
     })
   })
 
-  wss.broadcast = function (data) {
-    var f = JSON.stringify(data);
-    for (var i in this.clients) {
-      this.clients[i].send(f);
-    }
+  wss.broadcast = function broadcast (data) {
+    let msg = JSON.stringify(data);
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(msg);
+      }
+    })
   }
 
   plugin.loginfo('watch init_wss done');

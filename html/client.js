@@ -215,10 +215,11 @@ function ws_connect () {
   ws.onmessage = function (event, flags) {
     // flags.binary will be set if a binary data is received
     // flags.masked will be set if the data was masked
-    var data = JSON.parse(event.data);
+    let data = JSON.parse(event.data);
 
     if (data.msg) {
       $('#messages').append(data.msg + " ");
+      return;
     }
 
     if (data.watchers) {
