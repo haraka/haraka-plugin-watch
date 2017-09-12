@@ -231,6 +231,7 @@ exports.redis_subscribe_all_results = function (next) {
           break;
         case 'rcpt_to.in_host_list':
         case 'rcpt_to.qmail_deliverable':
+        case 'qmail-deliverable':
           if (m.result.msg) return;
           if (m.result.skip) return;
           break;
@@ -255,10 +256,10 @@ exports.redis_subscribe_all_results = function (next) {
           break;
         case 'queue/smtp_forward':
           if (m.result.pass)
-            wss.broadcast({
-              uuid: match[1],
-              'queue/smtp_forward': { classy: 'bg_green' }
-            });
+            wss.broadcast({ uuid: match[1], 'queue/smtp_forward': { classy: 'bg_green' } });
+          return;
+        case 'outbound':
+            wss.broadcast({ uuid: match[1], 'queue': { classy: 'bg_green' } });
           return;
       }
 
@@ -286,6 +287,8 @@ exports.get_plugin_name = function (pi_name) {
     case 'dkim_verify':
     case 'dkim_sign':
       return 'dkim';
+    case 'outbound':
+      return 'queue';
   }
 
   return pi_name;
@@ -395,6 +398,7 @@ exports.format_any = function (pi_name, r) {
     case 'mail_from.is_resolvable':
     case 'rcpt_to.in_host_list':
     case 'rcpt_to.qmail_deliverable':
+    case 'qmail-deliverable':
     case 'avg':
     case 'clamd':
     case 'relay':
