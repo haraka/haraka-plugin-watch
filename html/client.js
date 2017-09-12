@@ -17,11 +17,11 @@ let mail_from_plugins= ['spf', 'mail_from.is_resolvable', 'known-senders'];
 let rcpt_to_plugins  = [
   'queue/smtp_forward',
   'rcpt_to.in_host_list',
-  'rcpt_to.qmail_deliverable'
+  'qmail-deliverable'
 ];
 let data_plugins     = [
   'early_talker', 'bounce','data.headers','karma','spamassassin','rspamd',
-  'clamd','avg','data.uribl','limit','dkim','attachment'
+  'clamd','data.uribl','limit','dkim','attachment'
 ];
 // 'seen' plugins are ones we've seen data reported for. When data from a new
 // plugin arrives, it gets added to one of the sections above and the table is
@@ -366,6 +366,7 @@ function shorten_pi (name) {
     spamassassin: 'spam',
     early_talker: 'early',
     'rcpt_to.qmail_deliverable': 'qmd',
+    'qmail-deliverable': 'qmd',
     'rcpt_to.in_host_list': 'host_list',
     'mail_from.is_resolvable': 'dns',
     'known-senders' : 'known',

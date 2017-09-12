@@ -1,4 +1,9 @@
 
+### 1.0.12 - 2017-09-11
+
+- update for qmd rename #22
+- coalesce outbound to queue #22
+
 ### 1.0.11 - 2017-07-30
 
 - update broadcast syntax to be compatible with ws > 1
