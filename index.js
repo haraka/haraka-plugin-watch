@@ -259,7 +259,7 @@ exports.redis_subscribe_all_results = function (next) {
             wss.broadcast({ uuid: match[1], 'queue/smtp_forward': { classy: 'bg_green' } });
           return;
         case 'outbound':
-            wss.broadcast({ uuid: match[1], 'queue': { classy: 'bg_green' } });
+          wss.broadcast({ uuid: match[1], 'queue': { classy: 'bg_green' } });
           return;
       }
 
