@@ -11,30 +11,30 @@ let total_cols;
 let cxn_cols;
 let txn_cols;
 
-let connect_plugins  = ['geoip','asn','p0f','dnsbl', 'access', 'fcrdns'];
-let helo_plugins     = ['helo.checks', 'tls', 'auth', 'relay', 'spf'];
-let mail_from_plugins= ['spf', 'mail_from.is_resolvable', 'known-senders'];
-let rcpt_to_plugins  = [
+const connect_plugins  = ['geoip','asn','p0f','dnsbl', 'access', 'fcrdns'];
+const helo_plugins     = ['helo.checks', 'tls', 'auth', 'relay', 'spf'];
+const mail_from_plugins= ['spf', 'mail_from.is_resolvable', 'known-senders'];
+const rcpt_to_plugins  = [
   'queue/smtp_forward',
   'rcpt_to.in_host_list',
   'qmail-deliverable'
 ];
-let data_plugins     = [
+const data_plugins     = [
   'early_talker', 'bounce','data.headers','karma','spamassassin','rspamd',
   'clamd','data.uribl','limit','dkim','attachment'
 ];
 // 'seen' plugins are ones we've seen data reported for. When data from a new
 // plugin arrives, it gets added to one of the sections above and the table is
 // redrawn.
-let seen_plugins = connect_plugins.concat(helo_plugins, mail_from_plugins,
+const seen_plugins = connect_plugins.concat(helo_plugins, mail_from_plugins,
   rcpt_to_plugins, data_plugins);
-let ignore_seen  = ['local_port', 'remote_host', 'helo', 'mail_from', 'rcpt_to', 'queue'];
+const ignore_seen  = ['local_port', 'remote_host', 'helo', 'mail_from', 'rcpt_to', 'queue'];
 
 let rows_showing = 0;
 
 function newRowConnectRow1 (data, uuid, txnId) {
-  let host = data.remote_host || { title: '', newval: ''};
-  let port = data.local_port ? (data.local_port.newval || '25') : '25';
+  const host = data.remote_host || { title: '', newval: ''};
+  const port = data.local_port ? (data.local_port.newval || '25') : '25';
 
   if (txnId > 1) {
     return [
@@ -58,7 +58,7 @@ function newRowConnectRow2 (data, uuid, txnId) {
 
   if (txnId > 1) return '';
 
-  let res = [];
+  const res = [];
   connect_plugins.forEach(plugin => {
     let nv = shorten_pi(plugin);
     let newc = '';
@@ -77,7 +77,7 @@ function newRowHelo (data, uuid, txnId) {
 
   if (txnId > 1) return '';
 
-  let cols = [];
+  const cols = [];
   helo_plugins.forEach(plugin => {
     cols.push('<td class=' +css_safe(plugin)+ '>' + shorten_pi(plugin) + '</td>');
   });
@@ -86,8 +86,8 @@ function newRowHelo (data, uuid, txnId) {
 
 function newRow (data, uuid) {
 
-  let txnId  = uuid.split('_').pop();
-  let rowResult = newRowConnectRow1(data, uuid, txnId);
+  const txnId  = uuid.split('_').pop();
+  const rowResult = newRowConnectRow1(data, uuid, txnId);
 
   rowResult.push(
     '<td class="mail_from" colspan=' + mail_from_cols + '></td>',
@@ -119,8 +119,8 @@ function newRow (data, uuid) {
   rowResult.push('</tr>');
 
   if (txnId > 1) {
-    let prevUuid = uuid.split('_').slice(0,2).join('_') + '_' + (txnId - 1);
-    let lastRow = $("#connections > tbody > tr." + prevUuid).last();
+    const prevUuid = uuid.split('_').slice(0,2).join('_') + '_' + (txnId - 1);
+    const lastRow = $("#connections > tbody > tr." + prevUuid).last();
     if (lastRow) {
       lastRow.hide().after( $(rowResult.join('\n')) ).fadeIn('slow');
     }
@@ -136,12 +136,12 @@ function newRow (data, uuid) {
 
 function updateRow (row_data, selector) {
   // each bit of data in the WSS sent object represents a TD in the table
-  for (let td_name in row_data) {
+  for (const td_name in row_data) {
 
-    let td = row_data[td_name];
+    const td = row_data[td_name];
     if (typeof td !== 'object' ) continue;
 
-    let td_name_css = css_safe(td_name);
+    const td_name_css = css_safe(td_name);
     let td_sel = selector + ' > td.' + td_name_css;
 
     if (td_name === 'spf') {
@@ -182,7 +182,7 @@ function ws_connect () {
     if (window.location.port) window.location.origin += ':' + window.location.port;
   }
 
-  let config = httpGetJSON(window.location.origin + '/watch/wss_conf');
+  const config = httpGetJSON(window.location.origin + '/watch/wss_conf');
   if (!config.wss_url) {
     config.wss_url = 'wss://' + window.location.hostname;
     if (window.location.port) config.wss_url += ':' + window.location.port;
@@ -215,7 +215,7 @@ function ws_connect () {
   ws.onmessage = function (event, flags) {
     // flags.binary will be set if a binary data is received
     // flags.masked will be set if the data was masked
-    let data = JSON.parse(event.data);
+    const data = JSON.parse(event.data);
 
     if (data.msg) {
       $('#messages').append(data.msg + " ");
@@ -232,8 +232,8 @@ function ws_connect () {
       return;
     }
 
-    let css_valid_uuid = get_css_safe_uuid(data.uuid);
-    let selector = 'table#connections > tbody > tr.' + css_valid_uuid;
+    const css_valid_uuid = get_css_safe_uuid(data.uuid);
+    const selector = 'table#connections > tbody > tr.' + css_valid_uuid;
 
     if ( $(selector).length ) {         // if the row exists
       updateRow(data, selector);
@@ -307,7 +307,7 @@ function update_seen (plugin) {
 
 function prune_table () {
   rows_showing++;
-  let max = 200;
+  const max = 200;
   if (rows_showing < max) return;
   $('table#connections > tbody > tr:gt('+(max*3)+')').fadeOut(2000, () => {
     $(this).remove();
@@ -355,14 +355,14 @@ function countPhaseCols () {
 }
 
 function css_safe (str) {
-  return str.replace(/([^0-9a-zA-Z\-\_])/g,'_');
+  return str.replace(/([^0-9a-zA-Z\-_])/g,'_');
   // http://www.w3.org/TR/CSS21/syndata.html#characters
   // identifiers can contain only [a-zA-Z0-9] <snip> plus - and _
 }
 
 function shorten_pi (name) {
 
-  let trims = {
+  const trims = {
     spamassassin: 'spam',
     early_talker: 'early',
     'rcpt_to.qmail_deliverable': 'qmd',
@@ -377,7 +377,7 @@ function shorten_pi (name) {
 
   if (trims[name]) return trims[name];
 
-  let parts = name.split('.');
+  const parts = name.split('.');
 
   switch (parts[0]) {
     case 'helo':
@@ -398,7 +398,7 @@ function get_css_safe_uuid (uuid) {
   // CAF2B05E-5382-4E65-A51E-7DEE6EF31F80.1  // bits.length=2
   // CAF2B05E-5382-4E65-A51E-7DEE6EF31F80.2
 
-  let bits = uuid.split('.');
+  const bits = uuid.split('.');
   if (bits.length === 1) { bits[1] = 1; }
 
   return 'aa_' + bits[0].replace(/[_-]/g, '') + '_' + bits[1];

@@ -1,10 +1,10 @@
 
-var assert = require('assert');
-var fixtures = require('haraka-test-fixtures');
+const assert = require('assert');
+const fixtures = require('haraka-test-fixtures');
 
 describe('watch', function () {
   it('register', function (done) {
-    var plugin = new fixtures.plugin('watch');
+    const plugin = new fixtures.plugin('watch');
     plugin.server = { notes: {} }
     plugin.register();
     assert.ok(plugin.cfg.main);
@@ -13,7 +13,7 @@ describe('watch', function () {
   });
 
   it('loads watch.ini', function (done) {
-    var plugin = new fixtures.plugin('watch');
+    const plugin = new fixtures.plugin('watch');
     plugin.server = { notes: {} }
     plugin.load_watch_ini();
     assert.equal(plugin.cfg.main.sampling, false);
@@ -21,7 +21,7 @@ describe('watch', function () {
   });
 
   it('inherits from haraka-plugin-redis', function (done) {
-    var plugin = new fixtures.plugin('watch');
+    const plugin = new fixtures.plugin('watch');
     plugin.inherits('haraka-plugin-redis');
     assert.ok(plugin.get_redis_sub_channel);
     // console.log(plugin);
@@ -29,7 +29,7 @@ describe('watch', function () {
   });
 
   it('ignores results that are not objects', function (done) {
-    var plugin = new fixtures.plugin('watch');
+    const plugin = new fixtures.plugin('watch');
     plugin.server = { notes: {} }
     plugin.register();
     plugin.load_redis_ini();
