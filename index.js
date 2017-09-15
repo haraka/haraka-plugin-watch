@@ -1,12 +1,13 @@
 'use strict';
 
+const path      = require('path');
 const WebSocket = require('ws');
 
 let wss = { broadcast: function () {} };
 let watchers = 0;
 
 exports.register = function () {
-  let plugin = this;
+  const plugin = this;
 
   plugin.inherits('haraka-plugin-redis');
 
@@ -20,7 +21,7 @@ exports.register = function () {
 }
 
 exports.load_watch_ini = function () {
-  let plugin = this;
+  const plugin = this;
   plugin.cfg = plugin.config.get('watch.ini', {
     booleans:  ['-main.sampling'],
   },
@@ -30,19 +31,19 @@ exports.load_watch_ini = function () {
 }
 
 exports.hook_init_http = function (next, server) {
-  let plugin = this;
+  const plugin = this;
 
   server.http.app.use('/watch/wss_conf', (req, res) => {
     // app.use args: request, response, app_next
     // pass config information to the WS client
-    let client = { sampling: plugin.cfg.main.sampling };
+    const client = { sampling: plugin.cfg.main.sampling };
     if (plugin.cfg.wss && plugin.cfg.wss.url) {
       client.wss_url = plugin.cfg.wss.url;
     }
     res.end(JSON.stringify(client));
   })
 
-  let htdocs = __dirname + '/html';
+  let htdocs = path.join(__dirname, 'html');
   if (plugin.cfg.wss && plugin.cfg.wss.htdocs) {
     htdocs = plugin.cfg.wss.htdocs;
   }
@@ -53,7 +54,7 @@ exports.hook_init_http = function (next, server) {
 }
 
 exports.hook_init_wss = function (next, server) {
-  let plugin = this;
+  const plugin = this;
   plugin.loginfo('watch init_wss');
 
   wss = server.http.wss;
@@ -88,7 +89,7 @@ exports.hook_init_wss = function (next, server) {
   })
 
   wss.broadcast = function broadcast (data) {
-    let msg = JSON.stringify(data);
+    const msg = JSON.stringify(data);
     wss.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(msg);
@@ -101,18 +102,18 @@ exports.hook_init_wss = function (next, server) {
 }
 
 exports.w_deny = function (next, connection, params) {
-  let plugin = this;
-  let pi_code   = params[0];
+  const plugin = this;
+  const pi_code   = params[0];
   // let pi_msg    = params[1];
-  let pi_name   = params[2];
+  const pi_name   = params[2];
   // let pi_function = params[3];
   // let pi_params   = params[4];
-  let pi_hook   = params[5];
+  const pi_hook   = params[5];
 
   connection.logdebug(this, "watch deny saw: " + pi_name +
             ' deny from ' + pi_hook);
 
-  let req = {
+  const req = {
     uuid: connection.transaction ? connection.transaction.uuid
       : connection.uuid,
     local_port: { classy: 'bg_white', title: 'disconnected' },
@@ -120,8 +121,8 @@ exports.w_deny = function (next, connection, params) {
   };
 
   connection.logdebug(this, "watch sending dark red to " + pi_name);
-  let bg_class = pi_code === DENYSOFT ? 'bg_dyellow' : 'bg_dred';
-  let report_as = plugin.get_plugin_name(pi_name);
+  const bg_class = pi_code === DENYSOFT ? 'bg_dyellow' : 'bg_dred';
+  const report_as = plugin.get_plugin_name(pi_name);
   if (req[report_as]) req[report_as].classy = bg_class;
   if (!req[report_as]) req[report_as] = { classy: bg_class };
 
@@ -143,16 +144,16 @@ exports.queue_ok = function (next, connection, msg) {
 }
 
 exports.redis_subscribe_all_results = function (next) {
-  let plugin = this;
+  const plugin = this;
 
   plugin.redis_subscribe_pattern('result-*', () => {
     plugin.redis.on('pmessage', (pattern, channel, message) => {
-      let match = /result-([A-F0-9\-\.]+)$/.exec(channel); // uuid
+      const match = /result-([A-F0-9\-.]+)$/.exec(channel); // uuid
       if (!match) {
         plugin.logerror('pattern: ' + pattern);
       }
 
-      let m = JSON.parse(message);
+      const m = JSON.parse(message);
 
       if (typeof m.result !== 'object') {
         plugin.logerror(`garbage was published on ${channel}: ${m.result}`);
@@ -263,7 +264,7 @@ exports.redis_subscribe_all_results = function (next) {
           return;
       }
 
-      let req = { uuid : match[1] };
+      const req = { uuid : match[1] };
       req[ plugin.get_plugin_name(m.plugin) ] =
         plugin.format_any(m.plugin, m.result);
       wss.broadcast(req);
@@ -295,7 +296,7 @@ exports.get_plugin_name = function (pi_name) {
 }
 
 exports.format_any = function (pi_name, r) {
-  let plugin = this;
+  const plugin = this;
 
   // title: the value shown in the HTML tooltip
   // classy: color of the square
@@ -314,8 +315,8 @@ exports.format_any = function (pi_name, r) {
     case 'asn':
       return plugin.format_asn(r);
     case 'connect.geoip':
-    case 'geoip':
-      var f = {};
+    case 'geoip': {
+      const f = {};
       if (r.human) {
         f.title = r.human;
         f.newval = r.human.substring(0, 6);
@@ -329,6 +330,7 @@ exports.format_any = function (pi_name, r) {
         }
       }
       return f;
+    }
     case 'connect.p0f':
     case 'p0f':
       return plugin.format_p0f(r);
@@ -368,7 +370,7 @@ exports.format_any = function (pi_name, r) {
       break;
     case 'spf':
       if (r.scope) {
-        let res = { title: r.result, scope: r.scope };
+        const res = { title: r.result, scope: r.scope };
         switch (r.result) {
           case 'None':
             res.classy = 'bg_lgrey';
@@ -435,7 +437,7 @@ exports.format_any = function (pi_name, r) {
       break;
     case 'spamassassin':
       if (r.hits !== undefined) {
-        let hits = parseFloat(r.hits);
+        const hits = parseFloat(r.hits);
         return {
           classy: hits > 5 ? 'bg_red' :
             hits > 2 ? 'bg_yellow' :
@@ -463,7 +465,7 @@ exports.format_any = function (pi_name, r) {
 
 exports.format_recipient = function (r) {
 
-  let rcpt = (r.address.length > 22)
+  const rcpt = (r.address.length > 22)
     ? ('..'+r.address.substring(r.address.length - 22))
     : r.address;
 
@@ -507,7 +509,7 @@ exports.format_asn = function (r) {
 
 exports.format_p0f = function (r) {
   if (!r || !r.os_name) return {};
-  let f = {
+  const f = {
     title: r.os_name +' '+ r.os_flavor + ', ' + r.distance + ' hops',
     newval: r.os_name,
   };
@@ -526,9 +528,9 @@ exports.format_bounce = function (r) {
 }
 
 exports.format_results = function (pi_name, r) {
-  let plugin = this;
+  const plugin = this;
 
-  let s = {
+  const s = {
     title:  plugin.get_title(pi_name, r),
     classy: plugin.get_class(pi_name, r),
   };
@@ -554,23 +556,25 @@ exports.get_class = function (pi_name, r) {
   if (!r.err) r.err = [];
 
   switch (pi_name) {
-    case 'data.dmarc':
+    case 'data.dmarc': {
       if (!r.result) return 'got';
-      var comment = (r.reason && r.reason.length) ? r.reason[0].comment : '';
+      const comment = (r.reason && r.reason.length) ? r.reason[0].comment : '';
       return r.result === 'pass'
         ? 'bg_green' : comment === 'no policy'
           ? 'bg_yellow' : 'bg_red';
-    case 'karma':
+    }
+    case 'karma': {
       if (r.score === undefined) {
-        let history = parseFloat(r.history) || 0;
+        const history = parseFloat(r.history) || 0;
         return history >  2 ? 'bg_green' :
           history < -1 ? 'bg_red'   : 'bg_yellow';
       }
-      var score = parseFloat(r.score) || 0;
+      const score = parseFloat(r.score) || 0;
       return score > 3  ? 'bg_green'  :
         score > 0  ? 'bg_lgreen' :
           score < -3 ? 'bg_red'    :
             score < 0  ? 'bg_lred'   : 'bg_yellow';
+    }
     case 'relay':
       return (r.pass.length && r.fail.length === 0) ? 'bg_green' :
         r.pass.length ? 'bg_lgreen' :
@@ -596,11 +600,12 @@ exports.get_class = function (pi_name, r) {
 exports.get_title = function (pi_name, r) {
   // title: the value shown in the HTML tooltip
   switch (pi_name) {
-    case 'data.dmarc':
-      var comment = (r.reason && r.reason.length) ?
+    case 'data.dmarc': {
+      const comment = (r.reason && r.reason.length) ?
         r.reason[0].comment : '';
       return r.result === 'pass' ? r.result :
         [ r.result, r.disposition, comment ].join(', ');
+    }
     case 'queue':
       return r.human;
     default:
@@ -610,7 +615,7 @@ exports.get_title = function (pi_name, r) {
 
 exports.format_remote_host = function (uuid, r) {
   let host  = r.host || '';
-  let ip    = r.ip || '';
+  const ip    = r.ip || '';
   let hostShort = host;
 
   if (host) {
@@ -636,7 +641,7 @@ exports.format_remote_host = function (uuid, r) {
 
 function get_remote_host (connection) {
   let host  = connection.remote.host || '';
-  let ip    = connection.remote.ip || '';
+  const ip    = connection.remote.ip || '';
   let hostShort = host;
 
   if (host) {
