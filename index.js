@@ -60,7 +60,7 @@ exports.hook_init_wss = function (next, server) {
   wss = server.http.wss;
 
   wss.on('error', (error) => {
-    plugin.loginfo("server error: " + error);
+    plugin.loginfo(`server error: ${error}`);
   })
 
   wss.on('connection', (ws) => {
@@ -69,13 +69,13 @@ exports.hook_init_wss = function (next, server) {
     // broadcast updated watcher count
     wss.broadcast({ watchers: watchers });
 
-    plugin.logdebug("wss client connected: " + Object.keys(ws));
+    plugin.logdebug(`wss client connected: ${Object.keys(ws)}`);
 
     // send message to just this websocket
     // ws.send(JSON.stringify({ msg: 'welcome!' });
 
     ws.on('error', (error) => {
-      plugin.logerror("client error: " + error);
+      plugin.logerror(`client error: ${error}`);
     })
 
     ws.on('close', (code, message) => {
@@ -110,17 +110,15 @@ exports.w_deny = function (next, connection, params) {
   // let pi_params   = params[4];
   const pi_hook   = params[5];
 
-  connection.logdebug(this, "watch deny saw: " + pi_name +
-            ' deny from ' + pi_hook);
+  connection.logdebug(this, `watch deny saw: ${pi_name} deny from ${pi_hook}`);
 
   const req = {
-    uuid: connection.transaction ? connection.transaction.uuid
-      : connection.uuid,
+    uuid: connection.transaction ? connection.transaction.uuid : connection.uuid,
     local_port: { classy: 'bg_white', title: 'disconnected' },
     remote_host:  get_remote_host(connection),
   };
 
-  connection.logdebug(this, "watch sending dark red to " + pi_name);
+  connection.logdebug(this, `watch sending dark red to ${pi_name}`);
   const bg_class = pi_code === DENYSOFT ? 'bg_dyellow' : 'bg_dred';
   const report_as = plugin.get_plugin_name(pi_name);
   if (req[report_as]) req[report_as].classy = bg_class;
@@ -362,8 +360,7 @@ exports.format_any = function (pi_name, r) {
       break;
     case 'mail_from':
       if (r.address) return {
-        newval: (r.address && r.address.length > 22) ?
-          ('..'+r.address.substring(r.address.length - 22)) : r.address,
+        newval: (r.address && r.address.length > 22) ? (`..${r.address.substring(r.address.length - 22)}`) : r.address,
         classy: 'black',
         title:  r.address,
       }
@@ -443,7 +440,7 @@ exports.format_any = function (pi_name, r) {
             hits > 2 ? 'bg_yellow' :
               hits < 0 ? 'bg_green' : 'bg_lgreen',
           title: JSON.stringify(r),
-          // title: r.flag + ', ' + hits + ' hits, time: ' + r.time,
+          // title: `${r.flag}, ${hits} hits, time: ${r.time}`,
         }
       }
       break;
@@ -465,9 +462,7 @@ exports.format_any = function (pi_name, r) {
 
 exports.format_recipient = function (r) {
 
-  const rcpt = (r.address.length > 22)
-    ? ('..'+r.address.substring(r.address.length - 22))
-    : r.address;
+  const rcpt = (r.address.length > 22) ? (`..${r.address.substring(r.address.length - 22)}`) : r.address;
 
   if (r.action === 'reject') {
     return { newval: rcpt, classy: 'bg_red', title: r.address };
@@ -510,7 +505,7 @@ exports.format_asn = function (r) {
 exports.format_p0f = function (r) {
   if (!r || !r.os_name) return {};
   const f = {
-    title: r.os_name +' '+ r.os_flavor + ', ' + r.distance + ' hops',
+    title: `${r.os_name} ${r.os_flavor}, ${r.distance} hops`,
     newval: r.os_name,
   };
   if (r.os_name) {
@@ -543,7 +538,7 @@ exports.format_helo = function (uuid, r) {
   return {
     uuid: uuid,
     helo: {
-      newval: (r.host && r.host.length > 22) ? '...'+r.host.substring(r.host.length -22) : r.host,
+      newval: (r.host && r.host.length > 22) ? `...${r.host.substring(r.host.length -22)}` : r.host,
       title:  r.host,
       classy: 'bg_white',
     },
@@ -601,10 +596,8 @@ exports.get_title = function (pi_name, r) {
   // title: the value shown in the HTML tooltip
   switch (pi_name) {
     case 'data.dmarc': {
-      const comment = (r.reason && r.reason.length) ?
-        r.reason[0].comment : '';
-      return r.result === 'pass' ? r.result :
-        [ r.result, r.disposition, comment ].join(', ');
+      const comment = (r.reason && r.reason.length) ? r.reason[0].comment : '';
+      return r.result === 'pass' ? r.result : [ r.result, r.disposition, comment ].join(', ');
     }
     case 'queue':
       return r.human;
@@ -626,7 +619,7 @@ exports.format_remote_host = function (uuid, r) {
         break;
     }
     if (host.length > 22) {
-      hostShort = '...' + host.substring(host.length-20);
+      hostShort = `...${host.substring(host.length-20)}`;
     }
   }
 
@@ -652,12 +645,12 @@ function get_remote_host (connection) {
         break;
     }
     if (host.length > 22) {
-      hostShort = '...' + host.substring(host.length-20);
+      hostShort = `...${host.substring(host.length-20)}`;
     }
   }
 
   return {
-    newval: host ? (hostShort + ' / ' + ip) : ip,
-    title: host ? (host + ' / ' + ip) : ip,
+    newval: host ? (`${hostShort} / ${ip}`) : ip,
+    title: host ? (`${host} / ${ip}`) : ip,
   }
 }
