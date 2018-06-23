@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "lint": "node node_modules/.bin/eslint *.js lib/*.js html/client.js test/*.js",
-    "lintfix": "node node_modules/.bin/eslint --fix *.js lib/*.js html/client.js test/*.js",
+    "lint": "node node_modules/.bin/eslint *.js html/client.js test/*.js",
+    "lintfix": "node node_modules/.bin/eslint --fix *.js html/client.js test/*.js",
     "cover": "node node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha"
   },
   "repository": {

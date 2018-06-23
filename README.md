@@ -49,6 +49,9 @@ Config options are set in watch.ini.
 ## Troubleshooting
 
 * If you aren't getting activity, make sure your web browser is able to establish the websockets connection. Either use straight http (only) or have a valid signed TLS certificate. The security for websockets connections is more strict than plain HTTP(s).
+* Additional info:
+    * [Watch not working](https://github.com/haraka/Haraka/issues/2385)
+    * [Running under AWS ELB](https://github.com/haraka/haraka-plugin-watch/issues/2)
 
 
 
