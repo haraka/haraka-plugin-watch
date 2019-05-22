@@ -1,10 +1,19 @@
 engines: 
   eslint:
     enabled: true
-    channel: "eslint-3"
+    channel: "eslint-4"
     config:
       config: ".eslintrc.json"
 
+checks:
+  return-statements:
+    enabled: false
+	similar-code:
+    enabled: false
+
 ratings:
    paths:
-   - "**.js"
+   - "*.js"
+
+exclude_patterns:
+	- "html/jquery.tipsy.js"
