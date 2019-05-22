@@ -8,7 +8,7 @@ engines:
 checks:
   return-statements:
     enabled: false
-	similar-code:
+  similar-code:
     enabled: false
 
 ratings:
