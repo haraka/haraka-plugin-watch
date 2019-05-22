@@ -16,4 +16,4 @@ ratings:
    - "*.js"
 
 exclude_patterns:
-	- "html/jquery.tipsy.js"
+  - "html/jquery.tipsy.js"
