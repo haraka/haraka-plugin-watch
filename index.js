@@ -50,7 +50,7 @@ exports.hook_init_http = function (next, server) {
   server.http.app.use('/watch/', server.http.express.static(htdocs));
 
   plugin.loginfo('watch init_http done');
-  return next();
+  next();
 }
 
 exports.hook_init_wss = function (next, server) {
@@ -98,7 +98,7 @@ exports.hook_init_wss = function (next, server) {
   }
 
   plugin.loginfo('watch init_wss done');
-  return next();
+  next();
 }
 
 exports.w_deny = function (next, connection, params) {
@@ -162,6 +162,9 @@ exports.redis_subscribe_all_results = function (next) {
         case 'local':
           if (m.result.port) {
             wss.broadcast({ uuid: match[1], local_port: { newval: m.result.port }});
+            if (m.result.port === 465) {
+              wss.broadcast({ uuid: match[1], tls: { classy: 'bg_green' }});
+            }
             return;
           }
           break;
@@ -263,8 +266,7 @@ exports.redis_subscribe_all_results = function (next) {
       }
 
       const req = { uuid : match[1] };
-      req[ plugin.get_plugin_name(m.plugin) ] =
-        plugin.format_any(m.plugin, m.result);
+      req[ plugin.get_plugin_name(m.plugin) ] = plugin.format_any(m.plugin, m.result);
       wss.broadcast(req);
     })
     next();
@@ -286,6 +288,9 @@ exports.get_plugin_name = function (pi_name) {
     case 'dkim_verify':
     case 'dkim_sign':
       return 'dkim';
+    case 'dmarc-perl':
+    case 'data.dmarc':
+      return 'dmarc';
     case 'outbound':
       return 'queue';
   }
@@ -393,6 +398,7 @@ exports.format_any = function (pi_name, r) {
       }
       break;
     case 'auth':
+    case 'auth/auth_vpopmaild':
     case 'helo.checks':
     case 'mail_from.is_resolvable':
     case 'rcpt_to.in_host_list':
@@ -444,6 +450,14 @@ exports.format_any = function (pi_name, r) {
         }
       }
       break;
+    case 'dmarc':
+    case 'data.dmarc':
+    case 'dmarc-perl':
+      if (r.pass) return { classy: 'bg_green', title: r.pass };
+      if (r.fail) return { classy: 'bg_red', title: r.fail };
+      if (r.dmarc === 'none') return { classy: 'bg_grey', title: r.dmarc };
+      if (r.dmarc === 'other') return {};
+      break;
     case 'queue':
       if (r.pass) return { classy: 'bg_green', title: r.pass };
       if (r.fail) return { classy: 'bg_red', title: r.fail };
@@ -451,8 +465,8 @@ exports.format_any = function (pi_name, r) {
       break;
   }
 
-  plugin.loginfo(pi_name);
-  plugin.loginfo(r);
+  plugin.logdebug(pi_name);
+  plugin.logdebug(r);
 
   return {
     title:  plugin.get_title(pi_name, r),
@@ -551,6 +565,8 @@ exports.get_class = function (pi_name, r) {
   if (!r.err) r.err = [];
 
   switch (pi_name) {
+    case 'dmarc':
+    case 'dmarc-perl':
     case 'data.dmarc': {
       if (!r.result) return 'got';
       const comment = (r.reason && r.reason.length) ? r.reason[0].comment : '';
@@ -595,6 +611,8 @@ exports.get_class = function (pi_name, r) {
 exports.get_title = function (pi_name, r) {
   // title: the value shown in the HTML tooltip
   switch (pi_name) {
+    case 'dmarc':
+    case 'dmarc-perl':
     case 'data.dmarc': {
       const comment = (r.reason && r.reason.length) ? r.reason[0].comment : '';
       return r.result === 'pass' ? r.result : [ r.result, r.disposition, comment ].join(', ');
