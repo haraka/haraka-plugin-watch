@@ -3,7 +3,7 @@
 const path      = require('path');
 const WebSocket = require('ws');
 
-let wss = { broadcast: function () {} };
+let wss = { broadcast () {} };
 let watchers = 0;
 
 exports.register = function () {
@@ -67,7 +67,7 @@ exports.hook_init_wss = function (next, server) {
     watchers++;
 
     // broadcast updated watcher count
-    wss.broadcast({ watchers: watchers });
+    wss.broadcast({ watchers });
 
     plugin.logdebug(`wss client connected: ${Object.keys(ws)}`);
 
@@ -550,7 +550,7 @@ exports.format_results = function (pi_name, r) {
 
 exports.format_helo = function (uuid, r) {
   return {
-    uuid: uuid,
+    uuid,
     helo: {
       newval: (r.host && r.host.length > 22) ? `...${r.host.substring(r.host.length -22)}` : r.host,
       title:  r.host,
@@ -642,7 +642,7 @@ exports.format_remote_host = function (uuid, r) {
   }
 
   return {
-    uuid: uuid,
+    uuid,
     remote_host: {
       newval: host ? (hostShort + ' / ' + ip) : ip,
       title: host ? (host + ' / ' + ip) : ip,

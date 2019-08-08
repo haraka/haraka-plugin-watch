@@ -1,5 +1,4 @@
 'use strict';
-/* global window, XMLHttpRequest, WebSocket */
 
 let ws;
 let connect_cols;
