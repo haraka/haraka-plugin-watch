@@ -9,6 +9,9 @@ ratings:
    paths:
    - "**.js"
 
+exclude_patterns:
+   - "html/jquery.tipsy.js"
+
 checks:
   return-statements:
     enabled: false
