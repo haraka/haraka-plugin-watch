@@ -1,29 +1,29 @@
 // tipsy, facebook style tooltips for jquery
-// version 1.0.0a
+// version 1.0.2
 // (c) 2008-2010 jason frame [jason@onehackoranother.com]
 // released under the MIT license
 
 (function($, window, undefined) {
 
-    function maybeCall(thing, ctx) {
-        return (typeof thing == 'function') ? (thing.call(ctx)) : thing;
-    }
+  function maybeCall(thing, ctx, args) {
+    return (typeof thing == 'function') ? (thing.call(ctx, args)) : thing;
+  }
 
-    function isElementInDOM(ele) {
-        while (ele = ele.parentNode) {
-            if (ele == document) return true;
-        }
-        return false;
+  function isElementInDOM(ele) {
+    while (ele = ele.parentNode) {
+      if (ele == document) return true;
     }
+    return false;
+  }
 
-    // Returns true if it is a DOM element
-    // http://stackoverflow.com/a/384380/999
-    function isElement(o){
-        return (
-            typeof HTMLElement === "object" ? o instanceof HTMLElement : //DOM2
-            o && typeof o === "object" && o.nodeType === 1 && typeof o.nodeName==="string"
-        );
-    }
+  // Returns true if it is a DOM element
+  // http://stackoverflow.com/a/384380/999
+  function isElement(o){
+    return (
+      typeof HTMLElement === "object" ? o instanceof HTMLElement : //DOM2
+      o && typeof o === "object" && o.nodeType === 1 && typeof o.nodeName==="string"
+    );
+  }
 
     var tipsyIDcounter = 0;
     function tipsyID() {
@@ -63,19 +63,18 @@
                 var pos = $.extend({}, this.$element.offset());
 
                 // If the element is contained in a SVG object, use getBBox
-                if (this.$element.parents('svg').size() > 0) {
+                if (this.$element.parents('svg').length > 0) {
                     pos = $.extend(pos, this.$element[0].getBBox());
-                }
-                else {
+                } else {
                     pos = $.extend(pos, {
                         width: this.$element[0].offsetWidth || 0,
                         height: this.$element[0].offsetHeight || 0
                     });
                 }
 
-                var actualWidth = $tip[0].offsetWidth;
-                var actualHeight = $tip[0].offsetHeight;
-                var gravity = maybeCall(this.options.gravity, this.$element[0]);
+                var actualWidth = $tip[0].offsetWidth,
+                    actualHeight = $tip[0].offsetHeight,
+                    gravity = maybeCall(this.options.gravity, this.$element[0]);
 
                 var tp;
                 switch (gravity.charAt(0)) {
@@ -98,22 +97,30 @@
                 if (gravity.length == 2) {
                     if (gravity.charAt(1) == 'w') {
                         tp.left = pos.left + pos.width / 2 - 15;
-                    }
-                    else {
+                    } else {
                         tp.left = pos.left + pos.width / 2 - actualWidth + 15;
                     }
                 }
 
+                if (tp.left < 0) {
+                    tp.left = 0;
+                }
+
                 $tip.css(tp).addClass('tipsy-' + gravity + this.options.theme);
                 $tip.find('.tipsy-arrow' + this.options.theme)[0].className = 'tipsy-arrow' + this.options.theme + ' tipsy-arrow-' + gravity.charAt(0) + this.options.theme;
-                $tip.css({width: (actualWidth - 10) + 'px'});
 
-                if (this.options.fade) {
-                    if (this.options.shadow)
+                if (this.options.beforeShow) {
+                    maybeCall(this.options.beforeShow, this.$element[0], {$tip: $tip, pos: pos});
+                }
+
+                if (this.options.slide) {
+                    $tip.css({visibility: 'visible', opacity: this.options.opacity, 'max-height': 0});
+                    $tip.stop().animate({'max-height': '100vh'}, this.options.slideInTime);
+                } else if (this.options.fade) {
+                    if(this.options.shadow)
                         $(".tipsy-inner").css({'box-shadow': '0px 0px '+this.options.shadowBlur+'px '+this.options.shadowSpread+'px rgba(0, 0, 0, '+this.options.shadowOpacity+')', '-webkit-box-shadow': '0px 0px '+this.options.shadowBlur+'px '+this.options.shadowSpread+'px rgba(0, 0, 0, '+this.options.shadowOpacity+')'});
                     $tip.stop().css({opacity: 0, display: 'block', visibility: 'visible'}).animate({opacity: this.options.opacity}, this.options.fadeInTime);
-                }
-                else {
+                } else {
                     $tip.css({visibility: 'visible', opacity: this.options.opacity});
                 }
 
@@ -127,9 +134,10 @@
 
         hide: function() {
             if (this.options.fade) {
+                this.tip().stop().animate({'max-height': 0}, this.options.slideOutTime, function() { $(this).remove(); });
+            } else if (this.options.slide) {
                 this.tip().stop().fadeOut(this.options.fadeOutTime, function() { $(this).remove(); });
-            }
-            else {
+            } else {
                 this.tip().remove();
             }
             if (this.options.aria) {
@@ -138,21 +146,26 @@
         },
 
         fixTitle: function() {
-            var $e = this.$element;
-            if ($e.attr('title') || typeof($e.attr('original-title')) != 'string') {
-                $e.attr('original-title', $e.attr('title') || '').removeAttr('title');
+            var $e = this.$element,
+                id = maybeCall(this.options.id, this.$element[0]);
+            if ($e.prop('title') || typeof($e.prop('original-title')) != 'string') {
+                $e.prop('original-title', $e.prop('title') || '').removeAttr('title');
+                // if it doesn't already have a tabindex, force the trigger element into the tab cycle
+                // to make it keyboard accessible with tabindex=0. this automatically makes elements
+                // that are not normally keyboard accessible (div or span) that have been tipsy-fied
+                // also operable with the keyboard.
+                if ($e.attr('tabindex') === undefined) {
+                    $e.attr('tabindex', 0);
+                }
             }
         },
 
         getTitle: function() {
-            var title;
-            var $e = this.$element;
-            var o = this.options;
+            var title, $e = this.$element, o = this.options;
             this.fixTitle();
             if (typeof o.title == 'string') {
-                title = $e.attr(o.title == 'title' ? 'original-title' : o.title);
-            }
-            else if (typeof o.title == 'function') {
+                title = $e.prop(o.title == 'title' ? 'original-title' : o.title);
+            } else if (typeof o.title == 'function') {
                 title = o.title.call($e[0]);
             }
             title = ('' + title).replace(/(^\s*|\s*$)/, "");
@@ -160,8 +173,12 @@
         },
 
         tip: function() {
+            var id = maybeCall(this.options.id, this.$element[0]);
+
             if (!this.$tip) {
-                this.$tip = $('<div class="tipsy' + this.options.theme + '"></div>').html('<div class="tipsy-arrow' + this.options.theme + '"></div><div class="tipsy-inner' + this.options.theme + '"></div>').attr("role","tooltip");
+                // generate tooltip, with appropriate ARIA role and an 'id' (can be set in options),
+                // so it can be targetted by aria-describedby in the trigger element
+                this.$tip = $('<div class="tipsy' + this.options.theme + '" id="'+id+'" role="tooltip"></div>').html('<div class="tipsy-arrow' + this.options.theme + '"></div><div class="tipsy-inner' + this.options.theme + '"></div>').attr("role","tooltip");
                 this.$tip.data('tipsy-pointee', this.$element[0]);
             }
             return this.$tip;
@@ -186,8 +203,7 @@
 
         if (options === true) {
             return this.data('tipsy');
-        }
-        else if (typeof options == 'string') {
+        } else if (typeof options == 'string') {
             var tipsy = this.data('tipsy');
             if (tipsy) tipsy[options]();
             return this;
@@ -199,7 +215,7 @@
         options.theme = (options.theme && options.theme !== '') ? '-' + options.theme : '';
 
         function get(ele) {
-            tipsy = $.data(ele, 'tipsy');
+            var tipsy = $.data(ele, 'tipsy');
             if (!tipsy) {
                 tipsy = new Tipsy(ele, $.fn.tipsy.elementOptions(ele, options));
                 $.data(ele, 'tipsy', tipsy);
@@ -211,12 +227,11 @@
             if ($.fn.tipsy.enabled !== true) {
                 return;
             }
-            tipsy = get(this);
+            var tipsy = get(this);
             tipsy.hoverState = 'in';
             if (options.delayIn === 0) {
                 tipsy.show();
-            }
-            else {
+            } else {
                 tipsy.fixTitle();
                 setTimeout(function() {
                     if (tipsy.hoverState == 'in' && isElementInDOM(tipsy.$element)) {
@@ -227,12 +242,11 @@
         }
 
         function leave() {
-            tipsy = get(this);
+            var tipsy = get(this);
             tipsy.hoverState = 'out';
             if (options.delayOut === 0) {
                 tipsy.hide();
-            }
-            else {
+            } else {
                 setTimeout(function() { if (tipsy.hoverState == 'out' || !tipsy.$element || !tipsy.$element.is(':visible')) tipsy.hide(); }, options.delayOut);
             }
         }
@@ -240,20 +254,32 @@
         if (!options.live) this.each(function() { get(this); });
 
         if (options.trigger != 'manual') {
-            var eventIn  = options.trigger == 'hover' ? 'mouseenter mouseover' : 'focus';
-            var eventOut = options.trigger == 'hover' ? 'mouseleave mouseout' : 'blur';
+            // one of the biggest changes from 1.0.0a: by default, bind to BOTH mouseenter/mouseleave AND focus/blur
+            // this ensures out-of-the-box keyboard accessibility, showing tooltips when users TAB to a (focusable) element
+            // sites that still use 'hover' will also get this new interactive behavior automatically, only those who
+            // explicitly set 'focus' will only get focus/blur (for forms, for instance)
 
             if (options.live && options.live !== true) {
-                $(this).on(eventIn, options.live, enter);
-                $(this).on(eventOut, options.live, leave);
-            }
-            else {
+                if (options.trigger != 'focus') {
+                    $(this).on('mouseenter', options.live, enter);
+                    $(this).on('mouseleave', options.live, leave);
+                }
+                if (options.trigger != 'blur') {
+                    $(this).on('focus', options.live, enter);
+                    $(this).on('blur', options.live, leave);
+                }
+            } else {
                 if (options.live && !$.live) {
                     //live === true and using jQuery >= 1.9
                     throw "Since jQuery 1.9, pass selector as live argument. eg. $(document).tipsy({live: 'a.live'});";
                 }
                 var binder = options.live ? 'live' : 'bind';
-                this[binder](eventIn, enter)[binder](eventOut, leave);
+                if (options.trigger != 'focus') {
+                    this[binder]('mouseenter', enter)[binder]('mouseleave', leave);
+                }
+                if (options.trigger != 'blur') {
+                    this[binder]('focus', enter)[binder]('blur', leave);
+                }
             }
         }
 
@@ -264,11 +290,15 @@
     $.fn.tipsy.defaults = {
         aria: false,
         className: null,
+        id: 'tipsy',
         delayIn: 0,
         delayOut: 0,
         fade: false,
         fadeInTime: 400,
         fadeOutTime: 400,
+        slide: false,
+        slideInTime: 600,
+        slideOutTime: 300,
         shadow: false,
         shadowBlur: 8,
         shadowOpacity: 1,
@@ -280,17 +310,17 @@
         offset: 0,
         opacity: 0.8,
         title: 'title',
-        trigger: 'hover',
+        trigger: 'interactive',
         theme: ''
     };
 
     $.fn.tipsy.revalidate = function() {
-        $('.tipsy').each(function() {
-            var pointee = $.data(this, 'tipsy-pointee');
-            if (!pointee || !isElementInDOM(pointee)) {
-                $(this).remove();
-            }
-        });
+      $('.tipsy').each(function() {
+        var pointee = $.data(this, 'tipsy-pointee');
+        if (!pointee || !isElementInDOM(pointee)) {
+          $(this).remove();
+        }
+      });
     };
 
     $.fn.tipsy.enable = function() {
@@ -303,7 +333,7 @@
 
     // Overwrite this method to provide options on a per-element basis.
     // For example, you could store the gravity in a 'tipsy-gravity' attribute:
-    // return $.extend({}, options, {gravity: $(ele).attr('tipsy-gravity') || 'n' });
+    // return $.extend({}, options, {gravity: $(ele).prop('tipsy-gravity') || 'n' });
     // (remember - do not modify 'options' in place!)
     $.fn.tipsy.elementOptions = function(ele, options) {
         return $.metadata ? $.extend({}, options, $(ele).metadata()) : options;
@@ -329,7 +359,10 @@
      * yields a closure of the supplied parameters, producing a function that takes
      * no arguments and is suitable for use as an autogravity function like so:
      *
-     * @param margin (int) - distance from the viewable region edge that an
+     * @param marginNorth (int) - distance from the viewable region top edge that an
+     *        element should be before setting its tooltip's gravity to be away
+     *        from that edge.
+     * @param marginEast (int) - distance from the viewable region right edge that an
      *        element should be before setting its tooltip's gravity to be away
      *        from that edge.
      * @param prefer (string, e.g. 'n', 'sw', 'w') - the direction to prefer
@@ -342,10 +375,10 @@
      */
     $.fn.tipsy.autoBounds = function(marginNorth, marginEast, prefer) {
         return function() {
-            var dir = {ns: prefer[0], ew: (prefer.length > 1 ? prefer[1] : false)};
-            var boundTop = $(document).scrollTop() + marginNorth;
-            var boundLeft = $(document).scrollLeft() + marginEast;
-            var $this = $(this);
+            var dir = {ns: prefer[0], ew: (prefer.length > 1 ? prefer[1] : false)},
+                boundTop = $(document).scrollTop() + marginNorth,
+                boundLeft = $(document).scrollLeft() + marginEast,
+                $this = $(this);
 
             if ($this.offset().top < boundTop) dir.ns = 'n';
             if ($this.offset().left < boundLeft) dir.ew = 'w';
@@ -365,22 +398,20 @@
      */
     $.fn.tipsy.autoBounds2 = function(margin, prefer) {
         return function() {
-            var dir = {};
-            var boundTop = $(document).scrollTop() + margin;
-            var boundLeft = $(document).scrollLeft() + margin;
-            var $this = $(this);
+            var dir = {},
+                boundTop = $(document).scrollTop() + margin,
+                boundLeft = $(document).scrollLeft() + margin,
+                $this = $(this);
 
             // bi-directional string (ne, se, sw, etc...)
             if (prefer.length > 1) {
                 dir.ns = prefer[0];
                 dir.ew = prefer[1];
-            }
-            else {
+            } else {
                 // single direction string (e, w, n or s)
                 if (prefer[0] == 'e' || prefer[0] == 'w') {
                     dir.ew = prefer[0];
-                }
-                else {
+                } else {
                     dir.ns = prefer[0];
                 }
             }

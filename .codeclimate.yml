@@ -1,19 +1,28 @@
-engines: 
+engines:
   eslint:
     enabled: true
-    channel: "eslint-4"
+    channel: "eslint-6"
     config:
-      config: ".eslintrc.json"
+      config: ".eslintrc.yaml"
+
+ratings:
+   paths:
+   - "**.js"
+
+exclude_patterns:
+   - "html/jquery.tipsy.js"
 
 checks:
   return-statements:
     enabled: false
   similar-code:
     enabled: false
-
-ratings:
-   paths:
-   - "*.js"
-
-exclude_patterns:
-  - "html/jquery.tipsy.js"
+  file-lines:
+    config:
+      threshold: 1000
+  method-lines:
+    config:
+      threshold: 100
+  method-complexity:
+    config:
+      threshold: 20

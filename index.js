@@ -248,6 +248,7 @@ exports.redis_subscribe_all_results = function (next) {
         case 'relay':
           if (m.result.skip) return;
           break;
+        case 'headers':
         case 'data.headers':
           if (m.result.pass) return;
           if (m.result.msg) return;
@@ -291,6 +292,8 @@ exports.get_plugin_name = function (pi_name) {
     case 'dmarc-perl':
     case 'data.dmarc':
       return 'dmarc';
+    case 'data.headers':
+      return 'headers';
     case 'outbound':
       return 'queue';
   }
@@ -412,6 +415,7 @@ exports.format_any = function (pi_name, r) {
       if (r.pass || r.fail) return plugin.format_default(r);
       if (r.skip) return {};
       break;
+    case 'headers':
     case 'data.headers':
       if (r.fail) {
         if (/^direct/.test(r.fail)) return { classy: 'bg_lred' };
