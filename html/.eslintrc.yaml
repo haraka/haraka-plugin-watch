@@ -1,0 +1,7 @@
+env:
+  browser: true
+  jquery: true
+  es6: true
+
+rules:
+  indent: [2, 2, { SwitchCase: 1 } ]
