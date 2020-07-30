@@ -2,10 +2,10 @@ language: node_js
 node_js:
 #   - "6"
 #   - "7"
-    - "8"
+#    - "8"
     - "10"
-    - "11"
     - "12"
+    - "14"
 
 before_script:
 
@@ -14,8 +14,5 @@ script:
     - npm test
 
 after_success:
-    #- npm install istanbul codecov
-    #- npm run cover
-    #- ./node_modules/.bin/codecov
 
 sudo: false

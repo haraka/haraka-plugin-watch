@@ -19,7 +19,7 @@ const rcpt_to_plugins  = [
   'qmail-deliverable'
 ];
 const data_plugins     = [
-  'early_talker', 'bounce','data.headers','karma','spamassassin','rspamd',
+  'early_talker', 'bounce','headers','karma','spamassassin','rspamd',
   'clamd','data.uribl','limit','dkim','attachment'
 ];
 // 'seen' plugins are ones we've seen data reported for. When data from a new

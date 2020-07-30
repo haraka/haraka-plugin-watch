@@ -1,4 +1,9 @@
 
+### 1.0.14 - 2020-07-30
+
+- rename data.headers -> headers
+- update tipsy.js
+
 ### 1.0.13 - 2019-05-22
 
 - update WS to v6.1.2
