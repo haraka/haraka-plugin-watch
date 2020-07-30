@@ -3,6 +3,7 @@ env:
   es6: true
   mocha: true
   jquery: true
+  browser: true
 
 plugins: [ haraka ]
 
