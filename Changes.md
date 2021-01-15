@@ -2,6 +2,7 @@
 ### 1.0.15 - 2021-01-15
 
 - check that connection.remote exists before accessing
+- client: string concat -> es6 interpolated strings
 
 
 ### 1.0.14 - 2020-07-30
