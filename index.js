@@ -115,7 +115,7 @@ exports.w_deny = function (next, connection, params) {
   const req = {
     uuid: connection.transaction ? connection.transaction.uuid : connection.uuid,
     local_port: { classy: 'bg_white', title: 'disconnected' },
-    remote_host:  get_remote_host(connection),
+    remote_host: get_remote_host(connection),
   };
 
   connection.logdebug(this, `watch sending dark red to ${pi_name}`);
@@ -308,8 +308,8 @@ exports.format_any = function (pi_name, r) {
   // classy: color of the square
   switch (pi_name) {
     case 'access':
-      if (r.whitelist) return { classy: 'bg_green', title: r.pass }
-      if (r.fail)      return { classy: 'bg_red', title: r.fail }
+      if (r.whitelist) return { classy: 'bg_green', title: r.pass };
+      if (r.fail)      return { classy: 'bg_red', title: r.fail };
       if (r.skip)      return {};
       break;
     case 'bounce':
@@ -371,7 +371,7 @@ exports.format_any = function (pi_name, r) {
         newval: (r.address && r.address.length > 22) ? (`..${r.address.substring(r.address.length - 22)}`) : r.address,
         classy: 'black',
         title:  r.address,
-      }
+      };
       break;
     case 'spf':
       if (r.scope) {
@@ -428,7 +428,7 @@ exports.format_any = function (pi_name, r) {
         return plugin.format_default(r);
       }
       if (r.err) {
-        return { classy: 'bg_yellow', title: r.err }
+        return { classy: 'bg_yellow', title: r.err };
       }
       break;
     case 'rspamd':
@@ -440,7 +440,7 @@ exports.format_any = function (pi_name, r) {
                 : r.score < 0 ? 'bg_green'
                   : r.score < 3 ? 'bg_lgreen' : 'bg_yellow'),
         title: JSON.stringify(r),
-      }
+      };
       break;
     case 'spamassassin':
       if (r.hits !== undefined) {
@@ -451,7 +451,7 @@ exports.format_any = function (pi_name, r) {
               hits < 0 ? 'bg_green' : 'bg_lgreen',
           title: JSON.stringify(r),
           // title: `${r.flag}, ${hits} hits, time: ${r.time}`,
-        }
+        };
       }
       break;
     case 'dmarc':
@@ -630,7 +630,7 @@ exports.get_title = function (pi_name, r) {
 
 exports.format_remote_host = function (uuid, r) {
   let host  = r.host || '';
-  const ip    = r.ip || '';
+  const ip  = r.ip   || '';
   let hostShort = host;
 
   if (host) {
@@ -655,8 +655,12 @@ exports.format_remote_host = function (uuid, r) {
 }
 
 function get_remote_host (connection) {
-  let host  = connection.remote.host || '';
-  const ip    = connection.remote.ip || '';
+  let host = '';
+  let ip = '';
+  if (connection.remote) {
+    if (connection.remote.host) host = connection.remote.host;
+    if (connection.remote.ip  ) ip   = connection.remote.ip;
+  }
   let hostShort = host;
 
   if (host) {

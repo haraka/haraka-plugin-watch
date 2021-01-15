@@ -37,19 +37,19 @@ function newRowConnectRow1 (data, uuid, txnId) {
 
   if (txnId > 1) {
     return [
-      '<tr class="'+uuid+'">',
-      '<td rowspan=2 class="uuid got uuid_tiny" title="">' + txnId + '</td>',
-      '<td rowspan=2 colspan="' + cxn_cols + '"></td>'
+      `<tr class="${uuid}">`,
+      `<td rowspan=2 class="uuid got uuid_tiny" title="">${txnId}</td>`,
+      `<td rowspan=2 colspan="${cxn_cols}"></td>`
     ];
   }
 
   return [
-    '<tr class="spacer"><td colspan="'+total_cols+'"></td></tr>',
-    '<tr class="'+uuid+'">',
-    '<td class="uuid uuid_tiny got" rowspan=2 title='+data.uuid+'><a href="/logs/'+data.uuid+'" target="_blank">'+ data.uuid+'</a></td>',
-    '<td class="remote_host got" colspan=' + (connect_cols - 1) +' title="'+ host.title+'">'+host.newval+'</td>',
-    '<td class="local_port bg_dgreen" title="connected">'+port+'</td>',
-    '<td class="helo lgrey" colspan="' + helo_cols + '"></td>',
+    `<tr class="spacer"><td colspan="${total_cols}"></td></tr>`,
+    `<tr class="${uuid}">`,
+    `<td class="uuid uuid_tiny got" rowspan=2 title=${data.uuid}><a href="/logs/${data.uuid}" target="_blank">${data.uuid}</a></td>`,
+    `<td class="remote_host got" colspan=${connect_cols - 1} title="${host.title}">${host.newval}</td>`,
+    `<td class="local_port bg_dgreen" title="connected">${port}</td>`,
+    `<td class="helo lgrey" colspan="${helo_cols}"></td>`,
   ];
 }
 
@@ -67,7 +67,7 @@ function newRowConnectRow2 (data, uuid, txnId) {
       if (data[plugin].newval) nv   = data[plugin].newval;
       if (data[plugin].title)  tit  = data[plugin].title;
     }
-    res.push('<td class="'+css_safe(plugin)+' ' + newc+'" title="'+tit+'">'+nv+'</td>');
+    res.push(`<td class="${css_safe(plugin)} ${newc}" title="${tit}">${nv}</td>`);
   });
   return res.join('');
 }
@@ -78,7 +78,7 @@ function newRowHelo (data, uuid, txnId) {
 
   const cols = [];
   helo_plugins.forEach(plugin => {
-    cols.push('<td class=' +css_safe(plugin)+ '>' + shorten_pi(plugin) + '</td>');
+    cols.push(`<td class=${css_safe(plugin)}>${shorten_pi(plugin)}</td>`);
   });
   return cols.join('\n');
 }
@@ -99,7 +99,7 @@ function newRow (data, uuid) {
 
   rowResult.push(
     '<td class=queue title="not queued" rowspan=2></td></tr>',
-    '<tr class="'+uuid+'">'
+    `<tr class="${uuid}">`
   );
 
   rowResult.push(newRowConnectRow2(data, uuid, txnId));
@@ -129,7 +129,7 @@ function newRow (data, uuid) {
   }
 
   connect_plugins.concat(['remote_host','local_port']).forEach(plugin => {
-    $('table#connections > tbody > tr.'+uuid+' > td.'+css_safe(plugin)).tipsy();
+    $(`table#connections > tbody > tr.${uuid}> td.${css_safe(plugin)}`).tipsy();
   });
 }
 
@@ -150,7 +150,7 @@ function updateRow (row_data, selector) {
 
     update_seen(td_name);
 
-    // $('#messages').append(', '+td_name+': ');
+    // $('#messages').append(`, ${td_name}: `);
 
     if (td.classy) {
       $(td_sel)
@@ -199,7 +199,7 @@ function ws_connect () {
   };
 
   ws.onerror = function (err) {
-    $('#messages').append(err+', '+err.message);
+    $('#messages').append(`${err}, ${err.message}`);
   };
 
   ws.onclose = function () {
@@ -287,7 +287,7 @@ function update_seen (plugin) {
         data_plugins.push(plugin);
         break;
     }
-    $('#messages').append(', refresh('+plugin+') ');
+    $('#messages').append(`, refresh(${plugin}) `);
     return reset_table();
   }
 
@@ -299,7 +299,7 @@ function update_seen (plugin) {
     }
   }
 
-  $('#messages').append(', uncategorized('+plugin+') ');
+  $('#messages').append(`, uncategorized(${plugin}) `);
   data_plugins.push(plugin);
   return reset_table();
 }
@@ -308,7 +308,7 @@ function prune_table () {
   rows_showing++;
   const max = 200;
   if (rows_showing < max) return;
-  $('table#connections > tbody > tr:gt('+(max*3)+')').fadeOut(2000, () => {
+  $(`table#connections > tbody > tr:gt(${(max*3)})`).fadeOut(2000, () => {
     $(this).remove();
   });
   rows_showing = $('table#connections > tbody > tr').length;
@@ -325,21 +325,17 @@ function reset_table () {
 function display_th () {
   $('table#connections > thead > tr#labels').html([
     '<th id=id>ID</th>',
-    '<th id=connect   colspan='+connect_cols+' title="Characteristics of Remote Host">CONNECT</th>',
-    '<th id=ehlo      colspan='+helo_cols+' title="RFC5321.EHLO/HELO">HELO</th>',
-    '<th id=mail_from colspan='+mail_from_cols+
-            ' title="Envelope FROM / Envelope Sender / RFC5321.MailFrom / Return-Path / Reverse-PATH">MAIL FROM</th>',
-    '<th id=rcpt_to   colspan='+rcpt_to_cols+' title="Envelope Recipient / RFC5321.RcptTo / Forward Path">RCPT TO</th>',
-    '<th id=data      colspan='+data_cols+' title="DATA, the message content, comprised of the headers and body).">DATA</th>',
+    `<th id=connect   colspan=${connect_cols} title="Characteristics of Remote Host">CONNECT</th>`,
+    `<th id=ehlo      colspan=${helo_cols} title="RFC5321.EHLO/HELO">HELO</th>`,
+    `<th id=mail_from colspan=${mail_from_cols} title="Envelope FROM / Envelope Sender / RFC5321.MailFrom / Return-Path / Reverse-PATH">MAIL FROM</th>`,
+    `<th id=rcpt_to   colspan=${rcpt_to_cols} title="Envelope Recipient / RFC5321.RcptTo / Forward Path">RCPT TO</th>`,
+    `<th id=data      colspan=${data_cols} title="DATA, the message content, comprised of the headers and body).">DATA</th>`,
     '<th id=queue title="When a message is accepted, it is delivered into the local mail queue.">QUEUE</th>',
   ].join('\n\t')
   ).tipsy();
   $('table#connections > thead > tr#labels > th').tipsy();
   $('table#connections > tfoot > tr#helptext')
-    .html('<td colspan='+total_cols+
-      '>For a good time: <a href="telnet://' +
-      window.location.hostname + ':587">nc ' +
-      window.location.hostname + ' 587</a></td>');
+    .html(`<td colspan=${total_cols}>For a good time: <a href="telnet://${window.location.hostname}:587">nc ${window.location.hostname} 587</a></td>`);
 }
 
 function countPhaseCols () {

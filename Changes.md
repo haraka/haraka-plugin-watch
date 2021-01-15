@@ -1,8 +1,15 @@
 
+### 1.0.15 - 2021-01-15
+
+- check that connection.remote exists before accessing
+- client: string concat -> es6 interpolated strings
+
+
 ### 1.0.14 - 2020-07-30
 
 - rename data.headers -> headers
 - update tipsy.js
+
 
 ### 1.0.13 - 2019-05-22
 
@@ -10,6 +17,7 @@
 - es6 updates #26, #27
 - dmarc: add support #37
 - tls: light up for port 465 #37
+
 
 ### 1.0.12 - 2017-09-11
 
