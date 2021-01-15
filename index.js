@@ -630,7 +630,7 @@ exports.get_title = function (pi_name, r) {
 
 exports.format_remote_host = function (uuid, r) {
   let host  = r.host || '';
-  const ip    = r.ip || '';
+  const ip  = r.ip   || '';
   let hostShort = host;
 
   if (host) {
@@ -657,7 +657,7 @@ exports.format_remote_host = function (uuid, r) {
 function get_remote_host (connection) {
   let host = '';
   if (connection.remote) host = connection.remote.host || '';
-  const ip  = connection.remote.ip   || '';
+  const ip = connection.remote.ip || '';
   let hostShort = host;
 
   if (host) {
