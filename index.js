@@ -656,8 +656,11 @@ exports.format_remote_host = function (uuid, r) {
 
 function get_remote_host (connection) {
   let host = '';
-  if (connection.remote) host = connection.remote.host || '';
-  const ip = connection.remote.ip || '';
+  let ip = '';
+  if (connection.remote) {
+    if (connection.remote.host) host = connection.remote.host;
+    if (connection.remote.ip  ) ip   = connection.remote.ip;
+  }
   let hostShort = host;
 
   if (host) {
