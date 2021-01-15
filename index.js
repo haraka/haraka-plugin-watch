@@ -115,7 +115,7 @@ exports.w_deny = function (next, connection, params) {
   const req = {
     uuid: connection.transaction ? connection.transaction.uuid : connection.uuid,
     local_port: { classy: 'bg_white', title: 'disconnected' },
-    remote_host:  get_remote_host(connection),
+    remote_host: get_remote_host(connection),
   };
 
   connection.logdebug(this, `watch sending dark red to ${pi_name}`);
@@ -655,8 +655,9 @@ exports.format_remote_host = function (uuid, r) {
 }
 
 function get_remote_host (connection) {
-  let host  = connection.remote.host || '';
-  const ip    = connection.remote.ip || '';
+  let host = '';
+  if (connection.remote) host = connection.remote.host || '';
+  const ip  = connection.remote.ip   || '';
   let hostShort = host;
 
   if (host) {

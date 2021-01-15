@@ -3,7 +3,6 @@
 [![Build Status][ci-img]][ci-url]
 [![Build status][ci-win-img]][ci-win-url]
 [![Code Climate][clim-img]][clim-url]
-[![Greenkeeper badge][gk-img]][gk-url]
 [![NPM][npm-img]][npm-url]
 
 
@@ -55,14 +54,12 @@ Config options are set in watch.ini.
 
 
 
-[ci-img]: https://travis-ci.org/haraka/haraka-plugin-watch.svg?branch=master
-[ci-url]: https://travis-ci.org/haraka/haraka-plugin-watch
-[ci-win-img]: https://ci.appveyor.com/api/projects/status/yxjfxu5mb4n94ho3?svg=true
-[ci-win-url]: https://ci.appveyor.com/project/msimerson/haraka-plugin-watch
+[ci-img]: https://github.com/haraka/haraka-plugin-watch/workflows/Plugin%20Tests/badge.svg
+[ci-url]: https://github.com/haraka/haraka-plugin-watch/actions?query=workflow%3A%22Plugin+Tests%22
+[ci-win-img]: https://github.com/haraka/haraka-plugin-watch/workflows/Plugin%20Tests%20-%20Windows/badge.svg
+[ci-win-url]: https://github.com/haraka/haraka-plugin-watch/actions?query=workflow%3A%22Plugin+Tests+-+Windows%22
 [clim-img]: https://codeclimate.com/github/haraka/haraka-plugin-watch/badges/gpa.svg
 [clim-url]: https://codeclimate.com/github/haraka/haraka-plugin-watch
-[gk-img]: https://badges.greenkeeper.io/haraka/haraka-plugin-watch.svg
-[gk-url]: https://greenkeeper.io/
 [npm-img]: https://nodei.co/npm/haraka-plugin-watch.png
 [npm-url]: https://www.npmjs.com/package/haraka-plugin-watch
 
