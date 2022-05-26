@@ -1,430 +1,452 @@
 // tipsy, facebook style tooltips for jquery
-// version 1.0.2
+// version 1.3.1
 // (c) 2008-2010 jason frame [jason@onehackoranother.com]
 // released under the MIT license
+//
+// Modified by Atlassian
+// https://github.com/atlassian/tipsy
 
-(function ($, window, undefined) {
+(function($) {
+    var liveBindingWarning =
+        "To be compatible with jQuery 1.9 and higher," +
+        " You must pass a selector to tipsy's live argument." +
+        " For instance, `$(document).tipsy({live: 'a.live'});`";
 
-  function maybeCall (thing, ctx, args) {
-    return (typeof thing == 'function') ? (thing.call(ctx, args)) : thing;
-  }
-
-  function isElementInDOM (ele) {
-    while (ele = ele.parentNode) {
-      if (ele == document) return true;
-    }
-    return false;
-  }
-
-  // Returns true if it is a DOM element
-  // http://stackoverflow.com/a/384380/999
-  function isElement (o){
-    return (
-      typeof HTMLElement === "object" ? o instanceof HTMLElement : //DOM2
-        o && typeof o === "object" && o.nodeType === 1 && typeof o.nodeName==="string"
-    );
-  }
-
-  let tipsyIDcounter = 0;
-  function tipsyID () {
-    return "tipsyuid" + (tipsyIDcounter++);
-  }
-
-  function Tipsy (element, options) {
-    this.$element = $(element);
-    this.options = options;
-    this.enabled = true;
-    this.fixTitle();
-  }
-
-  Tipsy.prototype = {
-    show: function () {
-      if (!isElementInDOM(this.$element[0])) return;
-
-      if (isElement(this.$element) && !this.$element.is(':visible')) return;
-
-      let title;
-      if (this.enabled && (title = this.getTitle())) {
-        const $tip = this.tip();
-
-        $tip.find('.tipsy-inner' + this.options.theme)[this.options.html ? 'html' : 'text'](title);
-
-        $tip[0].className = 'tipsy' + this.options.theme; // reset classname in case of dynamic gravity
-        if (this.options.className) {
-          $tip.addClass(maybeCall(this.options.className, this.$element[0]));
-        }
-
-        $tip.remove().css({top: 0, left: 0, visibility: 'hidden', display: 'block'}).prependTo(document.body);
-
-        let pos = $.extend({}, this.$element.offset());
-
-        // If the element is contained in a SVG object, use getBBox
-        if (this.$element.parents('svg').length > 0) {
-          pos = $.extend(pos, this.$element[0].getBBox());
-        } else {
-          pos = $.extend(pos, {
-            width: this.$element[0].offsetWidth || 0,
-            height: this.$element[0].offsetHeight || 0
-          });
-        }
-
-        const actualWidth = $tip[0].offsetWidth;
-        const actualHeight = $tip[0].offsetHeight;
-        const gravity = maybeCall(this.options.gravity, this.$element[0]);
-
-        let tp;
-        switch (gravity.charAt(0)) {
-          case 'n':
-            tp = {top: pos.top + pos.height + this.options.offset, left: pos.left + pos.width / 2 - actualWidth / 2};
-            break;
-          case 's':
-            tp = {top: pos.top - actualHeight - this.options.offset, left: pos.left + pos.width / 2 - actualWidth / 2};
-            break;
-          case 'e':
-            tp = {top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left - actualWidth - this.options.offset};
-            break;
-          case 'w':
-            tp = {top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left + pos.width + this.options.offset};
-            break;
-          default:
-            break;
-        }
-
-        if (gravity.length == 2) {
-          if (gravity.charAt(1) == 'w') {
-            tp.left = pos.left + pos.width / 2 - 15;
-          } else {
-            tp.left = pos.left + pos.width / 2 - actualWidth + 15;
-          }
-        }
-
-        if (tp.left < 0) {
-          tp.left = 0;
-        }
-
-        $tip.css(tp).addClass('tipsy-' + gravity + this.options.theme);
-        $tip.find('.tipsy-arrow' + this.options.theme)[0].className = 'tipsy-arrow' + this.options.theme + ' tipsy-arrow-' + gravity.charAt(0) + this.options.theme;
-
-        if (this.options.beforeShow) {
-          maybeCall(this.options.beforeShow, this.$element[0], {$tip: $tip, pos: pos});
-        }
-
-        if (this.options.slide) {
-          $tip.css({visibility: 'visible', opacity: this.options.opacity, 'max-height': 0});
-          $tip.stop().animate({'max-height': '100vh'}, this.options.slideInTime);
-        }
-        else if (this.options.fade) {
-          if (this.options.shadow)
-            $(".tipsy-inner").css({'box-shadow': '0px 0px '+this.options.shadowBlur+'px '+this.options.shadowSpread+'px rgba(0, 0, 0, '+this.options.shadowOpacity+')', '-webkit-box-shadow': '0px 0px '+this.options.shadowBlur+'px '+this.options.shadowSpread+'px rgba(0, 0, 0, '+this.options.shadowOpacity+')'});
-          $tip.stop().css({opacity: 0, display: 'block', visibility: 'visible'}).animate({opacity: this.options.opacity}, this.options.fadeInTime);
-        }
-        else {
-          $tip.css({visibility: 'visible', opacity: this.options.opacity});
-        }
-
-        if (this.options.aria) {
-          const $tipID = tipsyID();
-          $tip.attr("id", $tipID);
-          this.$element.attr("aria-describedby", $tipID);
-        }
-      }
-    },
-
-    hide: function () {
-      if (this.options.fade) {
-        this.tip().stop().animate({'max-height': 0}, this.options.slideOutTime, function () { $(this).remove(); });
-      } else if (this.options.slide) {
-        this.tip().stop().fadeOut(this.options.fadeOutTime, function () { $(this).remove(); });
-      } else {
-        this.tip().remove();
-      }
-      if (this.options.aria) {
-        this.$element.removeAttr("aria-describedby");
-      }
-    },
-
-    fixTitle: function () {
-      const $e = this.$element;
-      // const id = maybeCall(this.options.id, this.$element[0]);
-      if ($e.prop('title') || typeof($e.prop('original-title')) != 'string') {
-        $e.prop('original-title', $e.prop('title') || '').removeAttr('title');
-        // if it doesn't already have a tabindex, force the trigger element into the tab cycle
-        // to make it keyboard accessible with tabindex=0. this automatically makes elements
-        // that are not normally keyboard accessible (div or span) that have been tipsy-fied
-        // also operable with the keyboard.
-        if ($e.attr('tabindex') === undefined) {
-          $e.attr('tabindex', 0);
-        }
-      }
-    },
-
-    getTitle: function () {
-      let title;
-      const $e = this.$element;
-      const o = this.options;
-      this.fixTitle();
-      if (typeof o.title == 'string') {
-        title = $e.prop(o.title == 'title' ? 'original-title' : o.title);
-      }
-      else if (typeof o.title == 'function') {
-        title = o.title.call($e[0]);
-      }
-      title = ('' + title).replace(/(^\s*|\s*$)/, "");
-      return title || o.fallback;
-    },
-
-    tip: function () {
-      const id = maybeCall(this.options.id, this.$element[0]);
-
-      if (!this.$tip) {
-        // generate tooltip, with appropriate ARIA role and an 'id' (can be set in options),
-        // so it can be targetted by aria-describedby in the trigger element
-        this.$tip = $('<div class="tipsy' + this.options.theme + '" id="'+id+'" role="tooltip"></div>').html('<div class="tipsy-arrow' + this.options.theme + '"></div><div class="tipsy-inner' + this.options.theme + '"></div>').attr("role","tooltip");
-        this.$tip.data('tipsy-pointee', this.$element[0]);
-      }
-      return this.$tip;
-    },
-
-    validate: function () {
-      if (!this.$element[0].parentNode) {
-        this.hide();
-        this.$element = null;
-        this.options = null;
-      }
-    },
-
-    enable: function () { this.enabled = true; },
-    disable: function () { this.enabled = false; },
-    toggleEnabled: function () { this.enabled = !this.enabled; }
-  };
-
-  $.fn.tipsy = function (options) {
-    let tipsy;
-    $.fn.tipsy.enable();
-
-    if (options === true) {
-      return this.data('tipsy');
-    } else if (typeof options == 'string') {
-      tipsy = this.data('tipsy');
-      if (tipsy) tipsy[options]();
-      return this;
+    function maybeCall(thing, ctx) {
+        return typeof thing == "function" ? thing.call(ctx) : thing;
     }
 
-    options = $.extend({}, $.fn.tipsy.defaults, options);
-
-    // Establish theme
-    options.theme = (options.theme && options.theme !== '') ? '-' + options.theme : '';
-
-    function get (ele) {
-      tipsy = $.data(ele, 'tipsy');
-      if (!tipsy) {
-        tipsy = new Tipsy(ele, $.fn.tipsy.elementOptions(ele, options));
-        $.data(ele, 'tipsy', tipsy);
-      }
-      return tipsy;
+    function isElementInDOM(ele) {
+        var el = ele && ele.jquery ? ele.get(0) : ele;
+        return $.contains(document.documentElement, el);
     }
 
-    function enter () {
-      if ($.fn.tipsy.enabled !== true) return;
-
-      tipsy = get(this);
-      tipsy.hoverState = 'in';
-      if (options.delayIn === 0) {
-        tipsy.show();
-      } else {
-        tipsy.fixTitle();
-        setTimeout(function () {
-          if (tipsy.hoverState == 'in' && isElementInDOM(tipsy.$element)) {
-            tipsy.show();
-          }
-        }, options.delayIn);
-      }
+    var tipsyIDcounter = 0;
+    function tipsyID() {
+        var tipsyID = tipsyIDcounter++;
+        return "tipsyuid" + tipsyID;
     }
 
-    function leave () {
-      tipsy = get(this);
-      tipsy.hoverState = 'out';
-      if (options.delayOut === 0) {
-        tipsy.hide();
-      } else {
-        setTimeout(function () { if (tipsy.hoverState == 'out' || !tipsy.$element || !tipsy.$element.is(':visible')) tipsy.hide(); }, options.delayOut);
-      }
+    function Tipsy(element, options) {
+        this.$element = $(element);
+        this.options = options;
+        this.enabled = true;
+        this.fixTitle();
     }
 
-    if (!options.live) this.each(function () { get(this); });
+    Tipsy.prototype = {
+        show: function() {
+            // if element is not in the DOM then don't show the Tipsy and return early
+            if (!isElementInDOM(this.$element)) {
+                return;
+            }
 
-    if (options.trigger != 'manual') {
-      // one of the biggest changes from 1.0.0a: by default, bind to BOTH mouseenter/mouseleave AND focus/blur
-      // this ensures out-of-the-box keyboard accessibility, showing tooltips when users TAB to a (focusable) element
-      // sites that still use 'hover' will also get this new interactive behavior automatically, only those who
-      // explicitly set 'focus' will only get focus/blur (for forms, for instance)
+            var title = this.getTitle();
+            if (!title || !this.enabled) {
+                return;
+            }
+            
+            var $tip = this.tip();
 
-      if (options.live && options.live !== true) {
-        if (options.trigger != 'focus') {
-          $(this).on('mouseenter', options.live, enter);
-          $(this).on('mouseleave', options.live, leave);
+            $tip.find(".tipsy-inner")[this.options.html ? "html" : "text"](
+                title
+            );
+            $tip[0].className = "tipsy"; // reset classname in case of dynamic gravity
+            $tip.remove()
+                .css({
+                    top: 0,
+                    left: 0,
+                    visibility: "hidden",
+                    display: "block"
+                })
+                .appendTo(document.body);
+
+            var that = this;
+            function tipOver() {
+                that.hoverTooltip = true;
+            }
+            function tipOut() {
+                if (that.hoverState == "in") return; // If field is still focused.
+                that.hoverTooltip = false;
+                if (that.options.trigger != "manual") {
+                    var eventOut =
+                        that.options.trigger == "hover"
+                            ? "mouseleave.tipsy"
+                            : "blur.tipsy";
+                    that.$element.trigger(eventOut);
+                }
+            }
+
+            if (this.options.hoverable) {
+                $tip.hover(tipOver, tipOut);
+            }
+
+            if (this.options.className) {
+                $tip.addClass(
+                    maybeCall(this.options.className, this.$element[0])
+                );
+            }
+
+            var pos = $.extend({}, this.$element.offset(), {
+                width: this.$element[0].getBoundingClientRect().width,
+                height: this.$element[0].getBoundingClientRect().height
+            });
+
+            var tipCss = {};
+            var actualWidth = $tip[0].offsetWidth,
+                actualHeight = $tip[0].offsetHeight;
+            var gravity = maybeCall(this.options.gravity, this.$element[0]);
+
+            if (gravity.length === 2) {
+                if (gravity.charAt(1) === "w") {
+                    tipCss.left = pos.left + pos.width / 2 - 15;
+                } else {
+                    tipCss.left =
+                        pos.left + pos.width / 2 - actualWidth + 15;
+                }
+            }
+
+            switch (gravity.charAt(0)) {
+                case "n":
+                    // left could already be set if gravity is 'nw' or 'ne'
+                    if (typeof tipCss.left === "undefined") {
+                        tipCss.left =
+                            pos.left + pos.width / 2 - actualWidth / 2;
+                    }
+                    tipCss.top = pos.top + pos.height + this.options.offset;
+                    break;
+                case "s":
+                    // left could already be set if gravity is 'sw' or 'se'
+                    if (typeof tipCss.left === "undefined") {
+                        tipCss.left =
+                            pos.left + pos.width / 2 - actualWidth / 2;
+
+                        // We need to apply the left positioning and then recalculate the tooltip height
+                        // If the tooltip is positioned close to the right edge of the window, it could cause
+                        // the tooltip text to overflow and change height.
+                        $tip.css(tipCss);
+                        actualHeight = $tip[0].offsetHeight;
+                    }
+                    tipCss.top =
+                        pos.top - actualHeight - this.options.offset;
+                    break;
+                case "e":
+                    tipCss.left =
+                        pos.left - actualWidth - this.options.offset;
+                    tipCss.top =
+                        pos.top + pos.height / 2 - actualHeight / 2;
+                    break;
+                case "w":
+                    tipCss.left =
+                        pos.left + pos.width + this.options.offset;
+                    tipCss.top =
+                        pos.top + pos.height / 2 - actualHeight / 2;
+                    break;
+            }
+
+            $tip.css(tipCss).addClass("tipsy-" + gravity);
+            $tip.find(".tipsy-arrow")[0].className =
+                "tipsy-arrow tipsy-arrow-" + gravity.charAt(0);
+
+            if (this.options.fade) {
+                $tip.stop()
+                    .css({
+                        opacity: 0,
+                        display: "block",
+                        visibility: "visible"
+                    })
+                    .animate({ opacity: this.options.opacity });
+            } else {
+                $tip.css({
+                    visibility: "visible",
+                    opacity: this.options.opacity
+                });
+            }
+
+            if (this.options.aria) {
+                var $tipID = tipsyID();
+                $tip.attr("id", $tipID);
+                this.$element.attr("aria-describedby", $tipID);
+            }
+        },
+
+        destroy: function() {
+            this.$element.removeData("tipsy");
+
+            this.unbindHandlers();
+            this.hide();
+        },
+
+        unbindHandlers: function() {
+            if (this.options.live) {
+                $(document).off(".tipsy", this.options.live);
+            } else {
+                this.$element.off(".tipsy");
+            }
+        },
+
+        hide: function() {
+            if (this.options.fade) {
+                this.tip()
+                    .stop()
+                    .fadeOut(function() {
+                        $(this).remove();
+                    });
+            } else {
+                this.tip().remove();
+            }
+            if (this.options.aria) {
+                this.$element.removeAttr("aria-describedby");
+            }
+        },
+
+        fixTitle: function() {
+            var $e = this.$element;
+            if (
+                $e.attr("title") ||
+                typeof $e.attr("original-title") != "string"
+            ) {
+                $e.attr("original-title", $e.attr("title") || "").removeAttr(
+                    "title"
+                );
+            }
+        },
+
+        getTitle: function() {
+            var title,
+                $e = this.$element,
+                o = this.options;
+            this.fixTitle();
+            var title,
+                o = this.options;
+            if (typeof o.title == "string") {
+                title = $e.attr(
+                    o.title == "title" ? "original-title" : o.title
+                );
+            } else if (typeof o.title == "function") {
+                title = o.title.call($e[0]);
+            }
+            title = ("" + title).replace(/(^\s*|\s*$)/, "");
+            return title || o.fallback;
+        },
+
+        tip: function() {
+            if (!this.$tip) {
+                this.$tip = $('<div class="tipsy"></div>')
+                    .html(
+                        '<div class="tipsy-arrow"></div><div class="tipsy-inner"></div>'
+                    )
+                    .attr("role", "tooltip");
+                this.$tip.data("tipsy-pointee", this.$element[0]);
+            }
+            return this.$tip;
+        },
+
+        validate: function() {
+            if (!this.$element[0].parentNode) {
+                this.hide();
+                this.$element = null;
+                this.options = null;
+            }
+        },
+
+        enable: function() {
+            this.enabled = true;
+        },
+        disable: function() {
+            this.enabled = false;
+        },
+        toggleEnabled: function() {
+            this.enabled = !this.enabled;
         }
-        if (options.trigger != 'blur') {
-          $(this).on('focus', options.live, enter);
-          $(this).on('blur', options.live, leave);
-        }
-      } else {
-        if (options.live && !$.live) {
-          //live === true and using jQuery >= 1.9
-          throw "Since jQuery 1.9, pass selector as live argument. eg. $(document).tipsy({live: 'a.live'});";
-        }
-        const binder = options.live ? 'live' : 'bind';
-        if (options.trigger != 'focus') {
-          this[binder]('mouseenter', enter)[binder]('mouseleave', leave);
-        }
-        if (options.trigger != 'blur') {
-          this[binder]('focus', enter)[binder]('blur', leave);
-        }
-      }
-    }
-
-    return this;
-
-  };
-
-  $.fn.tipsy.defaults = {
-    aria: false,
-    className: null,
-    id: 'tipsy',
-    delayIn: 0,
-    delayOut: 0,
-    fade: false,
-    fadeInTime: 400,
-    fadeOutTime: 400,
-    slide: false,
-    slideInTime: 600,
-    slideOutTime: 300,
-    shadow: false,
-    shadowBlur: 8,
-    shadowOpacity: 1,
-    shadowSpread: 0,
-    fallback: '',
-    gravity: 'n',
-    html: false,
-    live: false,
-    offset: 0,
-    opacity: 0.8,
-    title: 'title',
-    trigger: 'interactive',
-    theme: ''
-  };
-
-  $.fn.tipsy.revalidate = function () {
-    $('.tipsy').each(() => {
-      const pointee = $.data(this, 'tipsy-pointee');
-      if (!pointee || !isElementInDOM(pointee)) {
-        $(this).remove();
-      }
-    });
-  };
-
-  $.fn.tipsy.enable = function () {
-    $.fn.tipsy.enabled = true;
-  };
-
-  $.fn.tipsy.disable = function () {
-    $.fn.tipsy.enabled = false;
-  };
-
-  // Overwrite this method to provide options on a per-element basis.
-  // For example, you could store the gravity in a 'tipsy-gravity' attribute:
-  // return $.extend({}, options, {gravity: $(ele).prop('tipsy-gravity') || 'n' });
-  // (remember - do not modify 'options' in place!)
-  $.fn.tipsy.elementOptions = function (ele, options) {
-    return $.metadata ? $.extend({}, options, $(ele).metadata()) : options;
-  };
-
-  $.fn.tipsy.autoNS = function () {
-    return $(this).offset().top > ($(document).scrollTop() + $(window).height() / 2) ? 's' : 'n';
-  };
-
-  $.fn.tipsy.autoWE = function () {
-    return $(this).offset().left > ($(document).scrollLeft() + $(window).width() / 2) ? 'e' : 'w';
-  };
-
-  $.fn.tipsy.autoNWNE = function () {
-    return $(this).offset().left > ($(document).scrollLeft() + $(window).width() / 2) ? 'ne' : 'nw';
-  };
-
-  $.fn.tipsy.autoSWSE = function () {
-    return $(this).offset().left > ($(document).scrollLeft() + $(window).width() / 2) ? 'se' : 'sw';
-  };
-
-  /**
-   * yields a closure of the supplied parameters, producing a function that takes
-   * no arguments and is suitable for use as an autogravity function like so:
-   *
-   * @param marginNorth (int) - distance from the viewable region top edge that an
-   *        element should be before setting its tooltip's gravity to be away
-   *        from that edge.
-   * @param marginEast (int) - distance from the viewable region right edge that an
-   *        element should be before setting its tooltip's gravity to be away
-   *        from that edge.
-   * @param prefer (string, e.g. 'n', 'sw', 'w') - the direction to prefer
-   *        if there are no viewable region edges effecting the tooltip's
-   *        gravity. It will try to vary from this minimally, for example,
-   *        if 'sw' is preferred and an element is near the right viewable
-   *        region edge, but not the top edge, it will set the gravity for
-   *        that element's tooltip to be 'se', preserving the southern
-   *        component.
-   */
-  $.fn.tipsy.autoBounds = function (marginNorth, marginEast, prefer) {
-    return function () {
-      const dir = {ns: prefer[0], ew: (prefer.length > 1 ? prefer[1] : false)};
-      const boundTop = $(document).scrollTop() + marginNorth;
-      const boundLeft = $(document).scrollLeft() + marginEast;
-      const $this = $(this);
-
-      if ($this.offset().top < boundTop) dir.ns = 'n';
-      if ($this.offset().left < boundLeft) dir.ew = 'w';
-      if ($(window).width() + $(document).scrollLeft() - $this.offset().left < marginEast) dir.ew = 'e';
-      if ($(window).height() + $(document).scrollTop() - $this.offset().top < marginNorth) dir.ns = 's';
-
-      return dir.ns + (dir.ew ? dir.ew : '');
     };
-  };
 
-  /**
-   * Improved version of autoBounds for automatic placement of chunky tips
-   * The original autoBounds failed in two regards: 1. it would never return a 'w' or 'e', gravity even if they
-   * were preferred and/or optimal, 2. it only respected the margin between the left hand side of an element and
-   * left hand side of the viewport, and the top of an element and the top of the viewport. This version checks
-   * to see if the bottom of an element is too close to the bottom of the screen, similarly for the right hand side
-   */
-  $.fn.tipsy.autoBounds2 = function (margin, prefer) {
-    return function () {
-      const dir = {};
-      const boundTop = $(document).scrollTop() + margin;
-      const boundLeft = $(document).scrollLeft() + margin;
-      const $this = $(this);
-
-      // bi-directional string (ne, se, sw, etc...)
-      if (prefer.length > 1) {
-        dir.ns = prefer[0];
-        dir.ew = prefer[1];
-      } else {
-        // single direction string (e, w, n or s)
-        if (prefer[0] == 'e' || prefer[0] == 'w') {
-          dir.ew = prefer[0];
-        } else {
-          dir.ns = prefer[0];
+    $.fn.tipsy = function(options) {
+        if (options === true) {
+            return this.data("tipsy");
+        } else if (typeof options == "string") {
+            var tipsy = this.data("tipsy");
+            if (tipsy) tipsy[options]();
+            return this;
         }
-      }
 
-      if ($this.offset().top < boundTop) dir.ns = 'n';
-      if ($this.offset().left < boundLeft) dir.ew = 'w';
-      if ($(window).width() + $(document).scrollLeft() - ($this.offset().left + $this.width()) < margin) dir.ew = 'e';
-      if ($(window).height() + $(document).scrollTop() - ($this.offset().top + $this.height()) < margin) dir.ns = 's';
+        options = $.extend({}, $.fn.tipsy.defaults, options);
+        if (options.hoverable) {
+            options.delayOut = options.delayOut || 20;
+        }
 
-      if (dir.ns) return dir.ns + (dir.ew ? dir.ew : '');
+        // Check for jQuery support and patch live binding for jQuery 3 compat.
+        if (options.live === true) {
+            if (!this.selector) {
+                // No more jQuery support!
+                throw new Error(liveBindingWarning);
+            } else {
+                // Deprecated behaviour
+                console && console.warn && console.warn(liveBindingWarning);
+                options.live = this.selector;
+            }
+        }
 
-      return dir.ew;
-    }
-  };
+        function get(ele) {
+            var tipsy = $.data(ele, "tipsy");
+            if (!tipsy) {
+                tipsy = new Tipsy(ele, $.fn.tipsy.elementOptions(ele, options));
+                $.data(ele, "tipsy", tipsy);
+            }
+            return tipsy;
+        }
 
-})(jQuery, window);
+        function enter() {
+            var tipsy = get(this);
+            tipsy.hoverState = "in";
+            if (options.delayIn == 0) {
+                tipsy.show();
+            } else {
+                tipsy.fixTitle();
+                setTimeout(function() {
+                    if (
+                        tipsy.hoverState == "in" &&
+                        isElementInDOM(tipsy.$element)
+                    ) {
+                        tipsy.show();
+                    }
+                }, options.delayIn);
+            }
+        }
+
+        function leave() {
+            var tipsy = get(this);
+            tipsy.hoverState = "out";
+            if (options.delayOut == 0) {
+                tipsy.hide();
+            } else {
+                setTimeout(function() {
+                    if (tipsy.hoverState == "out" && !tipsy.hoverTooltip) {
+                        tipsy.hide();
+                    }
+                }, options.delayOut);
+            }
+        }
+
+        // create a tipsy object for every selected element,
+        // even when the events are delegated.
+        // this allows destruction to occur.
+        this.each(function() {
+            get(this);
+        });
+
+        if (options.trigger != "manual") {
+            var eventIn =
+                    options.trigger == "hover"
+                        ? "mouseenter.tipsy focus.tipsy"
+                        : "focus.tipsy",
+                eventOut =
+                    options.trigger == "hover"
+                        ? "mouseleave.tipsy blur.tipsy"
+                        : "blur.tipsy";
+            if (options.live) {
+                $(document)
+                    .on(eventIn, options.live, enter)
+                    .on(eventOut, options.live, leave);
+            } else {
+                this.on(eventIn, enter).on(eventOut, leave);
+            }
+        }
+
+        return this;
+    };
+
+    $.fn.tipsy.defaults = {
+        aria: false,
+        className: null,
+        delayIn: 0,
+        delayOut: 0,
+        fade: false,
+        fallback: "",
+        gravity: "n",
+        html: false,
+        live: false,
+        hoverable: false,
+        offset: 0,
+        opacity: 0.8,
+        title: "title",
+        trigger: "hover"
+    };
+
+    $.fn.tipsy.revalidate = function() {
+        $(".tipsy").each(function() {
+            var pointee = $.data(this, "tipsy-pointee");
+            if (!pointee || !isElementInDOM(pointee)) {
+                $(this).remove();
+            }
+        });
+    };
+
+    // Overwrite this method to provide options on a per-element basis.
+    // For example, you could store the gravity in a 'tipsy-gravity' attribute:
+    // return $.extend({}, options, {gravity: $(ele).attr('tipsy-gravity') || 'n' });
+    // (remember - do not modify 'options' in place!)
+    $.fn.tipsy.elementOptions = function(ele, options) {
+        return $.metadata ? $.extend({}, options, $(ele).metadata()) : options;
+    };
+
+    $.fn.tipsy.autoNS = function() {
+        return $(this).offset().top >
+            $(document).scrollTop() + $(window).height() / 2
+            ? "s"
+            : "n";
+    };
+
+    $.fn.tipsy.autoWE = function() {
+        return $(this).offset().left >
+            $(document).scrollLeft() + $(window).width() / 2
+            ? "e"
+            : "w";
+    };
+
+    /**
+     * yields a closure of the supplied parameters, producing a function that takes
+     * no arguments and is suitable for use as an autogravity function like so:
+     *
+     * @param margin (int) - distance from the viewable region edge that an
+     *        element should be before setting its tooltip's gravity to be away
+     *        from that edge.
+     * @param prefer (string, e.g. 'n', 'sw', 'w') - the direction to prefer
+     *        if there are no viewable region edges effecting the tooltip's
+     *        gravity. It will try to vary from this minimally, for example,
+     *        if 'sw' is preferred and an element is near the right viewable
+     *        region edge, but not the top edge, it will set the gravity for
+     *        that element's tooltip to be 'se', preserving the southern
+     *        component.
+     */
+    $.fn.tipsy.autoBounds = function(margin, prefer) {
+        return function() {
+            var dir = {
+                    ns: prefer[0],
+                    ew: prefer.length > 1 ? prefer[1] : false
+                },
+                boundTop = $(document).scrollTop() + margin,
+                boundLeft = $(document).scrollLeft() + margin,
+                $this = $(this);
+
+            if ($this.offset().top < boundTop) dir.ns = "n";
+            if ($this.offset().left < boundLeft) dir.ew = "w";
+            if (
+                $(window).width() +
+                    $(document).scrollLeft() -
+                    $this.offset().left <
+                margin
+            )
+                dir.ew = "e";
+            if (
+                $(window).height() +
+                    $(document).scrollTop() -
+                    $this.offset().top <
+                margin
+            )
+                dir.ns = "s";
+
+            return dir.ns + (dir.ew ? dir.ew : "");
+        };
+    };
+})(jQuery);
