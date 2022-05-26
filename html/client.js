@@ -89,12 +89,11 @@ function newRow (data, uuid) {
   const rowResult = newRowConnectRow1(data, uuid, txnId);
 
   rowResult.push(
-    '<td class="mail_from" colspan=' + mail_from_cols + '></td>',
-    '<td class="rcpt_to" colspan=' + rcpt_to_cols + '></td>'
+    `<td class="mail_from" colspan=${mail_from_cols}></td>`,
+    `<td class="rcpt_to" colspan=${rcpt_to_cols}></td>`
   );
   data_plugins.slice(0,data_cols).forEach(plugin => {
-    rowResult.push('<td class=' +css_safe(plugin)+ '>' +
-      shorten_pi(plugin) + '</td>');
+    rowResult.push(`<td class=${css_safe(plugin)}>${shorten_pi(plugin)}</td>`);
   });
 
   rowResult.push(
@@ -107,19 +106,19 @@ function newRow (data, uuid) {
 
   // transaction data
   mail_from_plugins.forEach((plugin) => {
-    rowResult.push('<td class=' +css_safe(plugin)+ '>' + shorten_pi(plugin) + '</td>');
+    rowResult.push(`<td class=${css_safe(plugin)}>${shorten_pi(plugin)}</td>`);
   })
   rcpt_to_plugins.forEach(plugin => {
-    rowResult.push('<td class=' +css_safe(plugin)+ '>' + shorten_pi(plugin) + '</td>');
+    rowResult.push(`<td class=${css_safe(plugin)}>${shorten_pi(plugin)}</td>`);
   })
   data_plugins.slice(data_cols,data_plugins.length).forEach(plugin => {
-    rowResult.push('<td class=' +css_safe(plugin)+ '>' + shorten_pi(plugin) + '</td>');
+    rowResult.push(`<td class=${css_safe(plugin)}>${shorten_pi(plugin)}</td>`);
   })
   rowResult.push('</tr>');
 
   if (txnId > 1) {
     const prevUuid = uuid.split('_').slice(0,2).join('_') + '_' + (txnId - 1);
-    const lastRow = $("#connections > tbody > tr." + prevUuid).last();
+    const lastRow = $(`#connections > tbody > tr.${prevUuid}`).last();
     if (lastRow) {
       lastRow.hide().after( $(rowResult.join('\n')) ).fadeIn('slow');
     }
@@ -141,11 +140,11 @@ function updateRow (row_data, selector) {
     if (typeof td !== 'object' ) continue;
 
     const td_name_css = css_safe(td_name);
-    let td_sel = selector + ' > td.' + td_name_css;
+    let td_sel = `${selector} > td.${td_name_css}`;
 
     if (td_name === 'spf') {
-      if (td.scope === 'helo') { td_sel = td_sel + ':first'; }
-      else                     { td_sel = td_sel + ':last';  }
+      if (td.scope === 'helo') { td_sel = `${td_sel}:first`; }
+      else                     { td_sel = `${td_sel}:last`;  }
     }
 
     update_seen(td_name);
