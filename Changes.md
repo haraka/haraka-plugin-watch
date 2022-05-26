@@ -1,4 +1,12 @@
 
+
+### 2.0.0 - 2022-05-25
+
+- dep(eslint): v6 -> 8
+- chore(ci): consolidate CI jobs to ci.yml
+
+
+
 ### 1.0.15 - 2021-01-15
 
 - check that connection.remote exists before accessing

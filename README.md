@@ -1,7 +1,6 @@
 # watch
 
 [![Build Status][ci-img]][ci-url]
-[![Build status][ci-win-img]][ci-win-url]
 [![Code Climate][clim-img]][clim-url]
 [![NPM][npm-img]][npm-url]
 
@@ -54,10 +53,8 @@ Config options are set in watch.ini.
 
 
 
-[ci-img]: https://github.com/haraka/haraka-plugin-watch/workflows/Plugin%20Tests/badge.svg
-[ci-url]: https://github.com/haraka/haraka-plugin-watch/actions?query=workflow%3A%22Plugin+Tests%22
-[ci-win-img]: https://github.com/haraka/haraka-plugin-watch/workflows/Plugin%20Tests%20-%20Windows/badge.svg
-[ci-win-url]: https://github.com/haraka/haraka-plugin-watch/actions?query=workflow%3A%22Plugin+Tests+-+Windows%22
+[ci-img]: https://github.com/haraka/haraka-plugin-watch/workflows/ci.yml/badge.svg
+[ci-url]: https://github.com/haraka/haraka-plugin-watch/workflows/ci.yml
 [clim-img]: https://codeclimate.com/github/haraka/haraka-plugin-watch/badges/gpa.svg
 [clim-url]: https://codeclimate.com/github/haraka/haraka-plugin-watch
 [npm-img]: https://nodei.co/npm/haraka-plugin-watch.png

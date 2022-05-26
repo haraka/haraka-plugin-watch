@@ -7,17 +7,15 @@ let wss = { broadcast () {} };
 let watchers = 0;
 
 exports.register = function () {
-  const plugin = this;
+  this.inherits('haraka-plugin-redis');
 
-  plugin.inherits('haraka-plugin-redis');
+  this.load_watch_ini();
 
-  plugin.load_watch_ini();
+  this.register_hook('init_master', 'redis_subscribe_all_results');
+  this.register_hook('init_child',  'redis_subscribe_all_results');
 
-  plugin.register_hook('init_master', 'redis_subscribe_all_results');
-  plugin.register_hook('init_child',  'redis_subscribe_all_results');
-
-  plugin.register_hook('deny',         'w_deny');
-  plugin.register_hook('queue_ok',     'queue_ok');
+  this.register_hook('deny',         'w_deny');
+  this.register_hook('queue_ok',     'queue_ok');
 }
 
 exports.load_watch_ini = function () {
@@ -31,25 +29,23 @@ exports.load_watch_ini = function () {
 }
 
 exports.hook_init_http = function (next, server) {
-  const plugin = this;
-
   server.http.app.use('/watch/wss_conf', (req, res) => {
     // app.use args: request, response, app_next
     // pass config information to the WS client
-    const client = { sampling: plugin.cfg.main.sampling };
-    if (plugin.cfg.wss && plugin.cfg.wss.url) {
-      client.wss_url = plugin.cfg.wss.url;
+    const client = { sampling: this.cfg.main.sampling };
+    if (this.cfg.wss && this.cfg.wss.url) {
+      client.wss_url = this.cfg.wss.url;
     }
     res.end(JSON.stringify(client));
   })
 
   let htdocs = path.join(__dirname, 'html');
-  if (plugin.cfg.wss && plugin.cfg.wss.htdocs) {
-    htdocs = plugin.cfg.wss.htdocs;
+  if (this.cfg.wss && this.cfg.wss.htdocs) {
+    htdocs = this.cfg.wss.htdocs;
   }
   server.http.app.use('/watch/', server.http.express.static(htdocs));
 
-  plugin.loginfo('watch init_http done');
+  this.loginfo('watch init_http done');
   next();
 }
 
@@ -102,7 +98,6 @@ exports.hook_init_wss = function (next, server) {
 }
 
 exports.w_deny = function (next, connection, params) {
-  const plugin = this;
   const pi_code   = params[0];
   // let pi_msg    = params[1];
   const pi_name   = params[2];
@@ -120,7 +115,7 @@ exports.w_deny = function (next, connection, params) {
 
   connection.logdebug(this, `watch sending dark red to ${pi_name}`);
   const bg_class = pi_code === DENYSOFT ? 'bg_dyellow' : 'bg_dred';
-  const report_as = plugin.get_plugin_name(pi_name);
+  const report_as = this.get_plugin_name(pi_name);
   if (req[report_as]) req[report_as].classy = bg_class;
   if (!req[report_as]) req[report_as] = { classy: bg_class };
 
@@ -302,8 +297,6 @@ exports.get_plugin_name = function (pi_name) {
 }
 
 exports.format_any = function (pi_name, r) {
-  const plugin = this;
-
   // title: the value shown in the HTML tooltip
   // classy: color of the square
   switch (pi_name) {
@@ -313,13 +306,13 @@ exports.format_any = function (pi_name, r) {
       if (r.skip)      return {};
       break;
     case 'bounce':
-      return plugin.format_bounce(r);
+      return this.format_bounce(r);
     case 'connect.fcrdns':
     case 'fcrdns':
-      return plugin.format_fcrdns(r);
+      return this.format_fcrdns(r);
     case 'connect.asn':
     case 'asn':
-      return plugin.format_asn(r);
+      return this.format_asn(r);
     case 'connect.geoip':
     case 'geoip': {
       const f = {};
@@ -339,7 +332,7 @@ exports.format_any = function (pi_name, r) {
     }
     case 'connect.p0f':
     case 'p0f':
-      return plugin.format_p0f(r);
+      return this.format_p0f(r);
     case 'tls':
       if (r.enabled) {
         if (r.verified) {
@@ -412,7 +405,7 @@ exports.format_any = function (pi_name, r) {
     case 'relay':
     case 'known-senders':
     case 'limit':
-      if (r.pass || r.fail) return plugin.format_default(r);
+      if (r.pass || r.fail) return this.format_default(r);
       if (r.skip) return {};
       break;
     case 'headers':
@@ -425,7 +418,7 @@ exports.format_any = function (pi_name, r) {
     case 'dkim_sign':
     case 'dkim_verify':
       if (r.pass || r.fail) {
-        return plugin.format_default(r);
+        return this.format_default(r);
       }
       if (r.err) {
         return { classy: 'bg_yellow', title: r.err };
@@ -469,12 +462,12 @@ exports.format_any = function (pi_name, r) {
       break;
   }
 
-  plugin.logdebug(pi_name);
-  plugin.logdebug(r);
+  this.logdebug(pi_name);
+  this.logdebug(r);
 
   return {
-    title:  plugin.get_title(pi_name, r),
-    classy: plugin.get_class(pi_name, r),
+    title:  this.get_title(pi_name, r),
+    classy: this.get_class(pi_name, r),
   };
 }
 
@@ -482,13 +475,8 @@ exports.format_recipient = function (r) {
 
   const rcpt = (r.address.length > 22) ? (`..${r.address.substring(r.address.length - 22)}`) : r.address;
 
-  if (r.action === 'reject') {
-    return { newval: rcpt, classy: 'bg_red', title: r.address };
-  }
-  if (r.action === 'accept') {
-    return { newval: rcpt, classy: 'bg_green', title: r.address };
-  }
-
+  if (r.action === 'reject') return { newval: rcpt, classy: 'bg_red', title: r.address };
+  if (r.action === 'accept') return { newval: rcpt, classy: 'bg_green', title: r.address };
   return { newval: rcpt, classy: 'black', title: r.address };
 }
 
@@ -541,11 +529,9 @@ exports.format_bounce = function (r) {
 }
 
 exports.format_results = function (pi_name, r) {
-  const plugin = this;
-
   const s = {
-    title:  plugin.get_title(pi_name, r),
-    classy: plugin.get_class(pi_name, r),
+    title:  this.get_title(pi_name, r),
+    classy: this.get_class(pi_name, r),
   };
 
   if (pi_name === 'spf') { s.scope = r.scope; }
