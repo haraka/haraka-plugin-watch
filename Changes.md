@@ -1,11 +1,13 @@
 
-
 ### 2.0.0 - 2022-05-25
 
 - dep(eslint): v6 -> 8
 - dep(tipsy): updated jquery.tipsy 1.0.2 -> 1.3.1
+- dep(jquery): bump v1.10 -> 3.6
+- dep(ws): 7.5.7 -> 8
 - chore(ci): consolidate CI jobs to ci.yml
-
+- chore(ci): add publish & codeql actions
+- chore(client): replace string concat with interp
 
 
 ### 1.0.15 - 2021-01-15
