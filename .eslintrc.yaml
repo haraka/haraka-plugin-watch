@@ -4,6 +4,7 @@ env:
   mocha: true
   jquery: true
   browser: true
+  es2020: true
 
 plugins: [ haraka ]
 
