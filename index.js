@@ -75,12 +75,12 @@ exports.hook_init_wss = function (next, server) {
     })
 
     ws.on('close', (code, message) => {
-      plugin.loginfo(`client closed: ${message} (${code})`);
+      plugin.loginfo(`client closed: ${message.toString()} (${code})`);
       watchers--;
     })
 
-    ws.on('message', (message) => {
-      plugin.logdebug(`from client: ${message}`);
+    ws.on('message', (message, isBinary) => {
+      plugin.logdebug(`from client: ${isBinary ? message.toString() : message}`);
     })
   })
 

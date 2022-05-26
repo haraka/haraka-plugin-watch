@@ -28,7 +28,7 @@
   "homepage": "https://github.com/haraka/haraka-plugin-watch#readme",
   "dependencies": {
     "haraka-plugin-redis": "2",
-    "ws": "^7.5.7"
+    "ws": "8"
   },
   "devDependencies": {
     "eslint": "8",
