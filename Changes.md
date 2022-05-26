@@ -3,6 +3,7 @@
 ### 2.0.0 - 2022-05-25
 
 - dep(eslint): v6 -> 8
+- dep(tipsy): updated jquery.tipsy 1.0.2 -> 1.3.1
 - chore(ci): consolidate CI jobs to ci.yml
 
 

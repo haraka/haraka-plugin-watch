@@ -53,8 +53,8 @@ Config options are set in watch.ini.
 
 
 
-[ci-img]: https://github.com/haraka/haraka-plugin-watch/workflows/ci.yml/badge.svg
-[ci-url]: https://github.com/haraka/haraka-plugin-watch/workflows/ci.yml
+[ci-img]: https://github.com/haraka/haraka-plugin-watch/actions/workflows/ci.yml/badge.svg
+[ci-url]: https://github.com/haraka/haraka-plugin-watch/actions/workflows/ci.yml
 [clim-img]: https://codeclimate.com/github/haraka/haraka-plugin-watch/badges/gpa.svg
 [clim-url]: https://codeclimate.com/github/haraka/haraka-plugin-watch
 [npm-img]: https://nodei.co/npm/haraka-plugin-watch.png

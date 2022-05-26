@@ -1,0 +1,14 @@
+name: publish
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  CI: true
+
+jobs:
+  publish:
+    uses: haraka/.github/.github/workflows/publish.yml@master
+    secrets: inherit
