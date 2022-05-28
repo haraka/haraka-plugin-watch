@@ -2,7 +2,7 @@
 
 ### 2.0.2 - 2022-05-27
 
-- dep: drop pi-redis, depend directly on redis
+- dep: depend directly on redis
 
 
 ### 2.0.1 - 2022-05-27
