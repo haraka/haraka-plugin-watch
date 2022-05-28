@@ -1,6 +1,7 @@
 'use strict';
 
 const path      = require('path');
+const redis     = require('redis');
 const WebSocket = require('ws');
 
 let wss = { broadcast () {} };
@@ -136,137 +137,143 @@ exports.queue_ok = function (next, connection, msg) {
   next();
 }
 
-exports.redis_subscribe_all_results = function (next) {
+exports.redis_subscribe_all_results = async function (next) {
   const plugin = this;
 
-  plugin.redis_subscribe_pattern('result-*').then(() => {
-    plugin.redis.on('pmessage', (pattern, channel, message) => {
-      const match = /result-([A-F0-9\-.]+)$/.exec(channel); // uuid
-      if (!match) {
-        plugin.logerror('pattern: ' + pattern);
-      }
+  if (this.pubsub) return // already subscribed?
 
-      const m = JSON.parse(message);
+  this.pubsub = redis.createClient(this.redisCfg.pubsub)
+  await this.pubsub.connect()
 
-      if (typeof m.result !== 'object') {
-        plugin.logerror(`garbage was published on ${channel}: ${m.result}`);
+  await this.pubsub.pSubscribe('result-*', (message, channel) => {
+
+    const match = /result-([A-F0-9\-.]+)$/.exec(channel); // uuid
+    if (!match) {
+      plugin.logerror('pattern: result-*');
+    }
+
+    const m = JSON.parse(message);
+
+    if (typeof m.result !== 'object') {
+      plugin.logerror(`garbage was published on ${channel}: ${m.result}`);
+      return;
+    }
+
+    switch (m.plugin) {
+      case 'local':
+        if (m.result.port) {
+          wss.broadcast({ uuid: match[1], local_port: { newval: m.result.port }});
+          if (m.result.port === 465) {
+            wss.broadcast({ uuid: match[1], tls: { classy: 'bg_green' }});
+          }
+          return;
+        }
+        break;
+      case 'remote':
+        if (m.result.ip) {
+          wss.broadcast(exports.format_remote_host(match[1], m.result));
+          return;
+        }
+        break;
+      case 'helo':
+        if (m.result.host) {
+          wss.broadcast(exports.format_helo(match[1], m.result));
+          return;
+        }
+        break;
+      case 'reset':
+        if (m.result.duration) {
+          wss.broadcast({ uuid: match[1], queue: {
+            newval: m.result.duration.toFixed(1)
+          }});
+          return;
+        }
+        break;
+      case 'disconnect':
+        if (m.result.duration) {
+          wss.broadcast({
+            uuid: match[1],
+            queue: { newval: m.result.duration.toFixed(1) },
+            local_port: { classy: 'bg_white', title: 'disconnected' },
+          });
+          return;
+        }
+        break;
+      case 'access':
+      case 'tls':
+        if (m.result.msg) return;
+        break;
+      case 'dnsbl':
+        if (m.result.emit) return;
+        if (m.result.pass) return;
+        break;
+      case 'early_talker':
+      case 'helo.checks':
+        if (m.result.pass) return;
+        if (m.result.skip) return;
+        if (m.result.ips) return;
+        if (m.result.multi) return;
+        if (m.result.helo_host) return;
+        break;
+      case 'data.uribl':
+        if (m.result.pass) return;
+        if (m.result.skip) return;
+        break;
+      case 'karma':
+        if (m.result.awards) return;
+        if (m.result.msg) return;
+        if (m.result.todo) return;
+        // if (m.result.emit) return;
+        break;
+      case 'mail_from.is_resolvable':
+        if (m.result.msg) return;
+        break;
+      case 'known-senders':
+        if (m.result.rcpt_ods) return;
+        if (m.result.sender) return;
+        break;
+      case 'rcpt_to.in_host_list':
+      case 'rcpt_to.qmail_deliverable':
+      case 'qmail-deliverable':
+        if (m.result.msg) return;
+        if (m.result.skip) return;
+        break;
+      case 'limit':
+        if (m.result.concurrent_count !== undefined) return;
+        if (m.result.rate_rcpt) return;
+        if (m.result.rate_rcpt_sender) return;
+        if (m.result.concurrent) return;
+        if (m.result.rate_conn) return;
+        if (m.result.msg) return;
+        break;
+      case 'relay':
+        if (m.result.skip) return;
+        break;
+      case 'headers':
+      case 'data.headers':
+        if (m.result.pass) return;
+        if (m.result.msg) return;
+        if (m.result.skip) return;
+        if (m.result.fail) {
+          if (m.result.fail == 'UA') return;
+        }
+        break;
+      case 'queue/smtp_forward':
+        if (m.result.pass)
+          wss.broadcast({ uuid: match[1], 'queue/smtp_forward': { classy: 'bg_green' } });
         return;
-      }
+      case 'outbound':
+        wss.broadcast({ uuid: match[1], 'queue': { classy: 'bg_green' } });
+        return;
+    }
 
-      switch (m.plugin) {
-        case 'local':
-          if (m.result.port) {
-            wss.broadcast({ uuid: match[1], local_port: { newval: m.result.port }});
-            if (m.result.port === 465) {
-              wss.broadcast({ uuid: match[1], tls: { classy: 'bg_green' }});
-            }
-            return;
-          }
-          break;
-        case 'remote':
-          if (m.result.ip) {
-            wss.broadcast(exports.format_remote_host(match[1], m.result));
-            return;
-          }
-          break;
-        case 'helo':
-          if (m.result.host) {
-            wss.broadcast(exports.format_helo(match[1], m.result));
-            return;
-          }
-          break;
-        case 'reset':
-          if (m.result.duration) {
-            wss.broadcast({ uuid: match[1], queue: {
-              newval: m.result.duration.toFixed(1)
-            }});
-            return;
-          }
-          break;
-        case 'disconnect':
-          if (m.result.duration) {
-            wss.broadcast({
-              uuid: match[1],
-              queue: { newval: m.result.duration.toFixed(1) },
-              local_port: { classy: 'bg_white', title: 'disconnected' },
-            });
-            return;
-          }
-          break;
-        case 'access':
-        case 'tls':
-          if (m.result.msg) return;
-          break;
-        case 'dnsbl':
-          if (m.result.emit) return;
-          if (m.result.pass) return;
-          break;
-        case 'early_talker':
-        case 'helo.checks':
-          if (m.result.pass) return;
-          if (m.result.skip) return;
-          if (m.result.ips) return;
-          if (m.result.multi) return;
-          if (m.result.helo_host) return;
-          break;
-        case 'data.uribl':
-          if (m.result.pass) return;
-          if (m.result.skip) return;
-          break;
-        case 'karma':
-          if (m.result.awards) return;
-          if (m.result.msg) return;
-          if (m.result.todo) return;
-          // if (m.result.emit) return;
-          break;
-        case 'mail_from.is_resolvable':
-          if (m.result.msg) return;
-          break;
-        case 'known-senders':
-          if (m.result.rcpt_ods) return;
-          if (m.result.sender) return;
-          break;
-        case 'rcpt_to.in_host_list':
-        case 'rcpt_to.qmail_deliverable':
-        case 'qmail-deliverable':
-          if (m.result.msg) return;
-          if (m.result.skip) return;
-          break;
-        case 'limit':
-          if (m.result.concurrent_count !== undefined) return;
-          if (m.result.rate_rcpt) return;
-          if (m.result.rate_rcpt_sender) return;
-          if (m.result.concurrent) return;
-          if (m.result.rate_conn) return;
-          if (m.result.msg) return;
-          break;
-        case 'relay':
-          if (m.result.skip) return;
-          break;
-        case 'headers':
-        case 'data.headers':
-          if (m.result.pass) return;
-          if (m.result.msg) return;
-          if (m.result.skip) return;
-          if (m.result.fail) {
-            if (m.result.fail == 'UA') return;
-          }
-          break;
-        case 'queue/smtp_forward':
-          if (m.result.pass)
-            wss.broadcast({ uuid: match[1], 'queue/smtp_forward': { classy: 'bg_green' } });
-          return;
-        case 'outbound':
-          wss.broadcast({ uuid: match[1], 'queue': { classy: 'bg_green' } });
-          return;
-      }
+    const req = { uuid : match[1] };
+    req[ plugin.get_plugin_name(m.plugin) ] = plugin.format_any(m.plugin, m.result);
+    wss.broadcast(req);
+  });
 
-      const req = { uuid : match[1] };
-      req[ plugin.get_plugin_name(m.plugin) ] = plugin.format_any(m.plugin, m.result);
-      wss.broadcast(req);
-    })
-    next();
-  })
+  this.logdebug(this, `pSubscribed to result-*`);
+  next()
 }
 
 exports.get_plugin_name = function (pi_name) {
