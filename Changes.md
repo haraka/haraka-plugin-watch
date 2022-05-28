@@ -1,9 +1,15 @@
 
+### 2.0.1 - 2022-05-27
+
+- fix: plugin.redis_subscribe_pattern is now async
+
+
 ### 2.0.0 - 2022-05-25
 
+- dep(pi-redis): 1 -> 2
 - dep(eslint): v6 -> 8
-- dep(tipsy): updated jquery.tipsy 1.0.2 -> 1.3.1
-- dep(jquery): bump v1.10 -> 3.6
+- dep(tipsy): jquery.tipsy 1.0.2 -> 1.3.1
+- dep(jquery): 1.10 -> 3.6
 - dep(ws): 7.5.7 -> 8
 - chore(ci): consolidate CI jobs to ci.yml
 - chore(ci): add publish & codeql actions

@@ -139,7 +139,7 @@ exports.queue_ok = function (next, connection, msg) {
 exports.redis_subscribe_all_results = function (next) {
   const plugin = this;
 
-  plugin.redis_subscribe_pattern('result-*', () => {
+  plugin.redis_subscribe_pattern('result-*').then(() => {
     plugin.redis.on('pmessage', (pattern, channel, message) => {
       const match = /result-([A-F0-9\-.]+)$/.exec(channel); // uuid
       if (!match) {
