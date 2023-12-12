@@ -20,7 +20,7 @@ const rcpt_to_plugins  = [
 ];
 const data_plugins     = [
   'early_talker', 'bounce','headers','karma','spamassassin','rspamd',
-  'clamd','data.uribl','limit','dkim','attachment'
+  'clamd','uribl','limit','dkim','attachment'
 ];
 // 'seen' plugins are ones we've seen data reported for. When data from a new
 // plugin arrives, it gets added to one of the sections above and the table is

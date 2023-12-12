@@ -4,7 +4,7 @@ on: [ push ]
 
 env:
   CI: true
-  node-version: 16
+  node-version: 20
 
 jobs:
   lint:
@@ -21,7 +21,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest ]
-        node-version: [ 14, 16, 18 ]
+        node-version: [ 18, 20 ]
       fail-fast: false
     steps:
     - uses: actions/checkout@v3
@@ -38,7 +38,7 @@ jobs:
     strategy:
       matrix:
         os: [ windows-latest ]
-        node-version: [ 14, 16, 18 ]
+        node-version: [ 18, 20 ]
       fail-fast: false
     steps:
     - uses: actions/checkout@v3
