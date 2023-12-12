@@ -643,8 +643,8 @@ exports.format_remote_host = function (uuid, r) {
   return {
     uuid,
     remote_host: {
-      newval: host ? (hostShort + ' / ' + ip) : ip,
-      title: host ? (host + ' / ' + ip) : ip,
+      newval: host ? (`${hostShort} / ${ip}`) : ip,
+      title: host ? (`${host} / ${ip}`) : ip,
     }
   }
 }

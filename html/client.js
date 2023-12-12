@@ -117,7 +117,7 @@ function newRow (data, uuid) {
   rowResult.push('</tr>');
 
   if (txnId > 1) {
-    const prevUuid = uuid.split('_').slice(0,2).join('_') + '_' + (txnId - 1);
+    const prevUuid = `${uuid.split('_').slice(0,2).join('_')}_${txnId - 1}`;
     const lastRow = $(`#connections > tbody > tr.${prevUuid}`).last();
     if (lastRow) {
       lastRow.hide().after( $(rowResult.join('\n')) ).fadeIn('slow');
@@ -158,11 +158,11 @@ function updateRow (row_data, selector) {
     }
     if (td.title) {
       $(td_sel).attr('title',
-        ($(td_sel).attr('title') || '') + ' ' + td.title).tipsy();
+        `${$(td_sel).attr('title') || ''} ${td.title}`).tipsy();
     }
     if (td.newval) $(td_sel).html(td.newval).tipsy();
   }
-  $(selector + ' > td').tipsy();
+  $(`${selector} > td`).tipsy();
 }
 
 function httpGetJSON (theUrl) {
@@ -176,14 +176,14 @@ function httpGetJSON (theUrl) {
 function ws_connect () {
 
   if (!window.location.origin) {
-    window.location.origin = window.location.protocol + "//" + window.location.hostname;
-    if (window.location.port) window.location.origin += ':' + window.location.port;
+    window.location.origin = `${window.location.protocol}//${window.location.hostname}`;
+    if (window.location.port) window.location.origin += `:${window.location.port}`;
   }
 
-  const config = httpGetJSON(window.location.origin + '/watch/wss_conf');
+  const config = httpGetJSON(`${window.location.origin}/watch/wss_conf`);
   if (!config.wss_url) {
-    config.wss_url = 'wss://' + window.location.hostname;
-    if (window.location.port) config.wss_url += ':' + window.location.port;
+    config.wss_url = `wss://${window.location.hostname}`;
+    if (window.location.port) config.wss_url += `:${window.location.port}`;
   }
   ws = new WebSocket( config.wss_url );
 
@@ -216,7 +216,7 @@ function ws_connect () {
     const data = JSON.parse(event.data);
 
     if (data.msg) {
-      $('#messages').append(data.msg + " ");
+      $('#messages').append(`${data.msg} `);
       return;
     }
 
@@ -231,7 +231,7 @@ function ws_connect () {
     }
 
     const css_valid_uuid = get_css_safe_uuid(data.uuid);
-    const selector = 'table#connections > tbody > tr.' + css_valid_uuid;
+    const selector = `table#connections > tbody > tr.${css_valid_uuid}`;
 
     if ( $(selector).length ) {         // if the row exists
       updateRow(data, selector);
@@ -395,7 +395,7 @@ function get_css_safe_uuid (uuid) {
   const bits = uuid.split('.');
   if (bits.length === 1) { bits[1] = 1; }
 
-  return 'aa_' + bits[0].replace(/[_-]/g, '') + '_' + bits[1];
+  return `aa_${bits[0].replace(/[_-]/g, '')  }_${bits[1]}`;
 }
 
 countPhaseCols();
