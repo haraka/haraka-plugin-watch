@@ -1,4 +1,12 @@
 
+### Unreleased
+
+### 2.0.3 - 2023-12-12
+
+- deps: bump versions
+- ci: test on node 18 & 20 (was 14 & 16)
+- rename data.uribl -> uribl
+
 
 ### 2.0.2 - 2022-05-27
 
@@ -108,3 +116,4 @@
 ### Oct 8 23:28:07 2016
 
 - initial import
+[2.0.4]: https://github.com/haraka/haraka-plugin-watch/releases/tag/2.0.4

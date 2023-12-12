@@ -216,6 +216,7 @@ exports.redis_subscribe_all_results = async function (next) {
         if (m.result.helo_host) return;
         break;
       case 'data.uribl':
+      case 'uribl':
         if (m.result.pass) return;
         if (m.result.skip) return;
         break;
@@ -349,6 +350,7 @@ exports.format_any = function (pi_name, r) {
       }
       break;
     case 'data.uribl':
+    case 'uribl':
     case 'dnsbl':
       if (r.fail) return { title: r.fail, classy: 'bg_lred' };
       break;
