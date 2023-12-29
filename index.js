@@ -20,13 +20,17 @@ exports.register = function () {
 }
 
 exports.load_watch_ini = function () {
-  const plugin = this;
-  plugin.cfg = plugin.config.get('watch.ini', {
-    booleans:  ['-main.sampling'],
+
+  this.cfg = this.config.get('watch.ini', {
+    booleans:  [
+      '-main.sampling'
+    ],
   },
-  function () {
-    plugin.load_watch_ini();
-  });
+  () => {
+    this.load_watch_ini();
+  })
+
+  if (this.cfg.ignore === undefined) this.cfg.ignore = {}
 }
 
 exports.hook_init_http = function (next, server) {
@@ -159,6 +163,8 @@ exports.redis_subscribe_all_results = async function (next) {
       return;
     }
 
+    if (this.cfg.ignore[m.result.ip] !== undefined) return
+
     switch (m.plugin) {
       case 'local':
         if (m.result.port) {
@@ -204,6 +210,7 @@ exports.redis_subscribe_all_results = async function (next) {
         if (m.result.msg) return;
         break;
       case 'dnsbl':
+      case 'dns-list':
         if (m.result.emit) return;
         if (m.result.pass) return;
         break;
@@ -352,6 +359,7 @@ exports.format_any = function (pi_name, r) {
     case 'data.uribl':
     case 'uribl':
     case 'dnsbl':
+    case 'dns-list':
       if (r.fail) return { title: r.fail, classy: 'bg_lred' };
       break;
     case 'karma':
