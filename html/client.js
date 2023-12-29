@@ -358,6 +358,7 @@ function shorten_pi (name) {
 
   const trims = {
     spamassassin: 'spam',
+    'dns-list': 'dnsbl',
     early_talker: 'early',
     'rcpt_to.qmail_deliverable': 'qmd',
     'qmail-deliverable': 'qmd',

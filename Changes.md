@@ -1,6 +1,16 @@
 
 ### Unreleased
 
+
+### [2.0.4] - 2023-12-29
+
+#### Added
+
+- feat(ignore): ignore configured IPs (useful to suppress monitoring)
+- feat(dns-list): added plugin config
+- eslint prefer-template #53
+
+
 ### 2.0.3 - 2023-12-12
 
 - deps: bump versions
