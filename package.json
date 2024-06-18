@@ -28,7 +28,7 @@
   "dependencies": {
     "haraka-plugin-redis": "2.0.6",
     "redis": "4.6.12",
-    "ws": "8.16.0"
+    "ws": "8.17.1"
   },
   "devDependencies": {
     "eslint": "8.56.0",
