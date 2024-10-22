@@ -9,6 +9,7 @@
   - redis 4.7.0
   - ws 8.18.0
 - populate [files] in package.json. Delete .npmignore.
+- dep: eslint-plugin-haraka -> @haraka/eslint-config
 
 ### [2.0.4] - 2023-12-29
 
