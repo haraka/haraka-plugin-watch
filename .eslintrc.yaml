@@ -6,8 +6,8 @@ env:
   browser: true
   es2022: true
 
-extends: '@haraka'
+extends: "@haraka"
 
 rules:
-  indent: [2, 2, { SwitchCase: 1 } ]
+  indent: [2, 2, { SwitchCase: 1 }]
   no-unused-vars: ["error", { args: none }]
