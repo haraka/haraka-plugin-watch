@@ -19,8 +19,7 @@ Enjoy the blinky lights.
 
 ## Tips
 
-- Hover your mouse pointer or tap (with touch devices) on table data to see more
-  details.
+- Hover your mouse pointer or tap (with touch devices) on table data to see more details.
 - Copy that connection UUID at left and use it to grep your logs for even more.
 - Edit the files in watch/html and play with the appearance. If you make it
   better, post a screen shot somewhere and create an Issue or PR.

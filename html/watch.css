@@ -159,7 +159,7 @@ nav ul {
   display: inline-table;
 }
 nav ul:after {
-  content: "";
+  content: '';
   clear: both;
   display: block;
 }

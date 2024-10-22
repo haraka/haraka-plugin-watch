@@ -47,14 +47,14 @@
   <body>
     <script>
       $(document).ready(() => {
-        display_th();
-        if (!("WebSocket" in window)) {
-          alert("<p>You need a browser that supports WebSockets.</p>");
+        display_th()
+        if (!('WebSocket' in window)) {
+          alert('<p>You need a browser that supports WebSockets.</p>')
         } else {
-          ws_connect(); // has WebSockets
-          $("a[rel=tipsy]").tipsy({ fade: true, gravity: "n" });
+          ws_connect() // has WebSockets
+          $('a[rel=tipsy]').tipsy({ fade: true, gravity: 'n' })
         }
-      });
+      })
     </script>
 
     <div id="dialog-form" title="Log in">
@@ -132,29 +132,29 @@
     <!-- https://github.com/CloCkWeRX/tipsy/ (not the main tipsy fork!) -->
     <script src="/watch/jquery.tipsy.js"></script>
     <script>
-      var email = $("#email"),
-        password = $("#password"),
+      var email = $('#email'),
+        password = $('#password'),
         allFields = $([]).add(email).add(password),
-        tips = $(".validateTips");
+        tips = $('.validateTips')
 
-      $("#dialog-form").dialog({
+      $('#dialog-form').dialog({
         autoOpen: false,
         height: 250,
         width: 250,
         modal: true,
         buttons: {
-          "Log in": function () {
-            allFields.removeClass("ui-state-error");
-            $(this).dialog("close");
+          'Log in': function () {
+            allFields.removeClass('ui-state-error')
+            $(this).dialog('close')
           },
           Cancel: function () {
-            $(this).dialog("close");
+            $(this).dialog('close')
           },
         },
         close: function () {
-          allFields.val("").removeClass("ui-state-error");
+          allFields.val('').removeClass('ui-state-error')
         },
-      });
+      })
     </script>
   </body>
 </html>

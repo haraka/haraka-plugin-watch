@@ -6,7 +6,7 @@ env:
   browser: true
   es2022: true
 
-extends: "@haraka"
+extends: '@haraka'
 
 rules:
-  no-unused-vars: ["error", { args: none }]
+  no-unused-vars: ['error', { args: none }]
