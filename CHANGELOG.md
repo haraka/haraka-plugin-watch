@@ -1,6 +1,16 @@
-
 ### Unreleased
 
+### [2.0.5] - 2024-10-22
+
+- html/client: updated dnsbl -> dns-list
+- deps version bumps:
+  - redis 4.7.0
+  - ws 8.18.0
+- populate [files] in package.json. Delete .npmignore.
+- dep: eslint-plugin-haraka -> @haraka/eslint-config
+- doc: renamed Changes -> CHANGELOG
+- doc: added CONTRIBUTORS.md
+- lint: remove duplicate / stale rules from .eslintrc
 
 ### [2.0.4] - 2023-12-29
 
@@ -10,23 +20,19 @@
 - feat(dns-list): added plugin config
 - eslint prefer-template #53
 
-
 ### 2.0.3 - 2023-12-12
 
 - deps: bump versions
 - ci: test on node 18 & 20 (was 14 & 16)
 - rename data.uribl -> uribl
 
-
 ### 2.0.2 - 2022-05-27
 
 - dep: depend directly on redis
 
-
 ### 2.0.1 - 2022-05-27
 
 - fix: plugin.redis_subscribe_pattern is now async
-
 
 ### 2.0.0 - 2022-05-25
 
@@ -39,18 +45,15 @@
 - chore(ci): add publish & codeql actions
 - chore(client): replace string concat with interp
 
-
 ### 1.0.15 - 2021-01-15
 
 - check that connection.remote exists before accessing
 - client: string concat -> es6 interpolated strings
 
-
 ### 1.0.14 - 2020-07-30
 
 - rename data.headers -> headers
 - update tipsy.js
-
 
 ### 1.0.13 - 2019-05-22
 
@@ -58,7 +61,6 @@
 - es6 updates #26, #27
 - dmarc: add support #37
 - tls: light up for port 465 #37
-
 
 ### 1.0.12 - 2017-09-11
 
@@ -86,7 +88,7 @@
 
 ### 1.0.7 - 2017-03-31
 
-- add default config/watch.ini file 
+- add default config/watch.ini file
 - add config section to README
 - add repo badges
 - remove legacy "walk the connection/transaction to find results" code
@@ -126,4 +128,5 @@
 ### Oct 8 23:28:07 2016
 
 - initial import
-[2.0.4]: https://github.com/haraka/haraka-plugin-watch/releases/tag/2.0.4
+  [2.0.4]: https://github.com/haraka/haraka-plugin-watch/releases/tag/2.0.4
+  [2.0.5]: /releases/tag/2.0.5

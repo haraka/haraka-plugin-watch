@@ -1,16 +1,16 @@
 engines:
   eslint:
     enabled: true
-    channel: "eslint-8"
+    channel: 'eslint-8'
     config:
-      config: ".eslintrc.yaml"
+      config: '.eslintrc.yaml'
 
 ratings:
-   paths:
-   - "**.js"
+  paths:
+    - '**.js'
 
 exclude_patterns:
-   - "html/jquery.tipsy.js"
+  - 'html/jquery.tipsy.js'
 
 checks:
   return-statements:
