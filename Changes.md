@@ -5,9 +5,10 @@
 ### [2.0.5] - 2024-10-22
 
 - html/client: updated dnsbl -> dns-list
-- 
-
-
+- deps version bumps:
+  - redis 4.7.0
+  - ws 8.18.0
+- populate [files] in package.json. Delete .npmignore.
 
 ### [2.0.4] - 2023-12-29
 
