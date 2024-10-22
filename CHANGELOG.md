@@ -8,6 +8,9 @@
   - ws 8.18.0
 - populate [files] in package.json. Delete .npmignore.
 - dep: eslint-plugin-haraka -> @haraka/eslint-config
+- doc: renamed Changes -> CHANGELOG
+- doc: added CONTRIBUTORS.md
+- lint: remove duplicate / stale rules from .eslintrc
 
 ### [2.0.4] - 2023-12-29
 
