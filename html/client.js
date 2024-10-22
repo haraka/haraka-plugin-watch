@@ -10,7 +10,7 @@ let total_cols;
 let cxn_cols;
 let txn_cols;
 
-const connect_plugins  = ['geoip','asn','p0f','dnsbl', 'access', 'fcrdns'];
+const connect_plugins  = ['geoip','asn','p0f','dns-list', 'access', 'fcrdns'];
 const helo_plugins     = ['helo.checks', 'tls', 'auth', 'relay', 'spf'];
 const mail_from_plugins= ['spf', 'mail_from.is_resolvable', 'known-senders'];
 const rcpt_to_plugins  = [
@@ -358,7 +358,6 @@ function shorten_pi (name) {
 
   const trims = {
     spamassassin: 'spam',
-    'dns-list': 'dnsbl',
     early_talker: 'early',
     'rcpt_to.qmail_deliverable': 'qmd',
     'qmail-deliverable': 'qmd',

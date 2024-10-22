@@ -2,6 +2,13 @@
 ### Unreleased
 
 
+### [2.0.5] - 2024-10-22
+
+- html/client: updated dnsbl -> dns-list
+- 
+
+
+
 ### [2.0.4] - 2023-12-29
 
 #### Added
@@ -127,3 +134,4 @@
 
 - initial import
 [2.0.4]: https://github.com/haraka/haraka-plugin-watch/releases/tag/2.0.4
+[2.0.5]: /releases/tag/2.0.5
