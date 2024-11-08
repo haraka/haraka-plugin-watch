@@ -149,6 +149,9 @@ exports.redis_subscribe_all_results = async function (next) {
   if (this.pubsub) return // already subscribed?
 
   this.pubsub = redis.createClient(this.redisCfg.pubsub)
+  this.pubsub.on('error', (err) => {
+    this.logerror(err.message)
+  })
   await this.pubsub.connect()
 
   await this.pubsub.pSubscribe('result-*', (message, channel) => {
