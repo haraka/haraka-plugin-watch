@@ -1,5 +1,9 @@
 ### Unreleased
 
+### [2.0.6] - 2024-11-08
+
+- fix missing error handler on redis client [#45](https://github.com/haraka/haraka-plugin-redis/issues/45)
+
 ### [2.0.5] - 2024-10-22
 
 - html/client: updated dnsbl -> dns-list
