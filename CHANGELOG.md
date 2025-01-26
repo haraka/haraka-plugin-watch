@@ -4,9 +4,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Unreleased
 
-### [2.0.6] - 2025-01-26
+### [2.0.7] - 2025-01-26
 
--
+- doc(CHANGELOG): fix two URLs
+- prettier: move config into package.json
+- dep(eslint): upgrade to v9
+
+### [2.0.6] - 2024-11-08
+
+- fix missing error handler on redis client [#45](https://github.com/haraka/haraka-plugin-redis/issues/45)
 
 ### [2.0.5] - 2024-10-22
 
