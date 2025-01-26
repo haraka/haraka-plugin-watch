@@ -1,4 +1,15 @@
+# Changelog
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/).
+
 ### Unreleased
+
+### [2.0.7] - 2025-01-26
+
+- html: bump jquery asset versions, add integrity
+- doc(CHANGELOG): fix two URLs
+- prettier: move config into package.json
+- dep(eslint): upgrade to v9
 
 ### [2.0.6] - 2024-11-08
 
@@ -132,5 +143,11 @@
 ### Oct 8 23:28:07 2016
 
 - initial import
-  [2.0.4]: https://github.com/haraka/haraka-plugin-watch/releases/tag/2.0.4
-  [2.0.5]: /releases/tag/2.0.5
+
+[2.0.0]: https://github.com/haraka/haraka-plugin-watch/releases/tag/2.0.0
+[2.0.1]: https://github.com/haraka/haraka-plugin-watch/releases/tag/2.0.1
+[2.0.2]: https://github.com/haraka/haraka-plugin-watch/releases/tag/2.0.2
+[2.0.3]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.0.3
+[2.0.4]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.0.4
+[2.0.5]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.0.5
+[2.0.6]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.0.6

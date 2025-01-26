@@ -1,6 +1,6 @@
 {
   "name": "haraka-plugin-watch",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "description": "Watch live SMTP traffic in a web interface",
   "main": "index.js",
   "files": [
@@ -10,13 +10,17 @@
   ],
   "scripts": {
     "format": "npm run prettier:fix && npm run lint:fix",
-    "lint": "npx eslint@^8 *.js html/client.js test",
-    "lint:fix": "npx eslint@^8 *.js html/client.js test --fix",
+    "lint": "npx eslint@^9 *.js html/client.js test",
+    "lint:fix": "npx eslint@^9 *.js html/client.js test --fix",
     "prettier": "npx prettier . --check",
     "prettier:fix": "npx prettier . --write --log-level=warn",
-    "test": "npx mocha@^10",
+    "test": "npx mocha@^11",
     "versions": "npx dependency-version-checker check",
     "versions:fix": "npx dependency-version-checker update"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "semi": false
   },
   "repository": {
     "type": "git",
@@ -35,12 +39,12 @@
   },
   "homepage": "https://github.com/haraka/haraka-plugin-watch#readme",
   "dependencies": {
-    "haraka-plugin-redis": "2.0.7",
+    "haraka-plugin-redis": "2.0.8",
     "redis": "4.7.0",
     "ws": "8.18.0"
   },
   "devDependencies": {
-    "@haraka/eslint-config": "^1.1.2",
+    "@haraka/eslint-config": "^2.0.2",
     "haraka-test-fixtures": "1.3.8"
   }
 }
