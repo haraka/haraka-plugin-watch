@@ -3,8 +3,6 @@
 [![Build Status][ci-img]][ci-url]
 [![Code Climate][clim-img]][clim-url]
 
-[![NPM][npm-img]][npm-url]
-
 Watch live SMTP traffic in a web interface.
 
 ![Watch Screen Capture](http://www.tnpi.net/internet/mail/haraka-watch.png)
@@ -51,5 +49,3 @@ Config options are set in watch.ini.
 [ci-url]: https://github.com/haraka/haraka-plugin-watch/actions/workflows/ci.yml
 [clim-img]: https://codeclimate.com/github/haraka/haraka-plugin-watch/badges/gpa.svg
 [clim-url]: https://codeclimate.com/github/haraka/haraka-plugin-watch
-[npm-img]: https://nodei.co/npm/haraka-plugin-watch.png
-[npm-url]: https://www.npmjs.com/package/haraka-plugin-watch
