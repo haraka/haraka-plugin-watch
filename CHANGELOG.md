@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### [2.0.6] - 2025-01-26
 
-- 
+-
 
 ### [2.0.5] - 2024-10-22
 
