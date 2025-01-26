@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### [2.0.7] - 2025-01-26
 
+- html: bump jquery asset versions, add integrity
 - doc(CHANGELOG): fix two URLs
 - prettier: move config into package.json
 - dep(eslint): upgrade to v9
