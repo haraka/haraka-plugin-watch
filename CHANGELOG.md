@@ -4,6 +4,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Unreleased
 
+### [2.0.8] - 2025-02-09
+
+#### Added
+
+- asn: don't log empty update
+- asn: add asn.net as the HTML title
+
 ### [2.0.7] - 2025-01-26
 
 - html: bump jquery asset versions, add integrity
@@ -13,7 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### [2.0.6] - 2024-11-08
 
-- fix missing error handler on redis client [#45](https://github.com/haraka/haraka-plugin-redis/issues/45)
+- fix missing error handler on redis client, #67
 
 ### [2.0.5] - 2024-10-22
 
@@ -151,3 +158,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 [2.0.4]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.0.4
 [2.0.5]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.0.5
 [2.0.6]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.0.6
+[2.0.8]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.0.8
+[2.0.7]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.0.7
