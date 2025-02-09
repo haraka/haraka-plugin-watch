@@ -555,9 +555,9 @@ exports.format_fcrdns = function (r) {
 exports.format_asn = function (r) {
   if (r.pass) return { classy: 'bg_green' }
   if (r.fail) return { title: r.fail, classy: 'bg_lred' }
-  if (r.asn) return { newval: r.asn }
+  if (r.asn) return { newval: r.asn, title: r.net }
   if (r.asn_score) return {} // extra
-  this.loginfo(r)
+  // this.loginfo(r)
   return {}
 }
 
