@@ -6,8 +6,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### [2.0.8] - 2025-02-09
 
-#### Added
-
 - asn: don't log empty update
 - asn: add asn.net as the HTML title
 
