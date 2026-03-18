@@ -1,6 +1,10 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: master
 
 env:
   CI: true
@@ -9,10 +13,17 @@ jobs:
   lint:
     uses: haraka/.github/.github/workflows/lint.yml@master
 
+  prettier:
+    uses: haraka/.github/.github/workflows/prettier.yml@master
+    with:
+      branch: ${{ github.head_ref }}
+
+  coverage:
+    uses: haraka/.github/.github/workflows/coverage.yml@master
+    secrets: inherit
+
   ubuntu:
-    needs: [lint]
     uses: haraka/.github/.github/workflows/ubuntu.yml@master
 
-  windows:
-    needs: [lint]
-    uses: haraka/.github/.github/workflows/windows.yml@master
+  macos:
+    uses: haraka/.github/.github/workflows/macos.yml@master
