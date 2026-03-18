@@ -49,7 +49,10 @@ describe('watch', function () {
   describe('format helpers', function () {
     it('formats recipient status', function () {
       assert.deepEqual(
-        watch.format_recipient({ address: 'user@example.net', action: 'reject' }),
+        watch.format_recipient({
+          address: 'user@example.net',
+          action: 'reject',
+        }),
         {
           newval: 'user@example.net',
           classy: 'bg_red',
@@ -57,7 +60,10 @@ describe('watch', function () {
         },
       )
       assert.deepEqual(
-        watch.format_recipient({ address: 'user@example.net', action: 'accept' }),
+        watch.format_recipient({
+          address: 'user@example.net',
+          action: 'accept',
+        }),
         {
           newval: 'user@example.net',
           classy: 'bg_green',
@@ -82,7 +88,9 @@ describe('watch', function () {
     })
 
     it('formats fcrdns/asn/p0f/bounce helpers', function () {
-      assert.deepEqual(watch.format_fcrdns({ pass: true }), { classy: 'bg_green' })
+      assert.deepEqual(watch.format_fcrdns({ pass: true }), {
+        classy: 'bg_green',
+      })
       assert.deepEqual(watch.format_fcrdns({ fail: 'bad ptr' }), {
         title: 'bad ptr',
         classy: 'bg_lred',
@@ -170,13 +178,19 @@ describe('watch', function () {
     it('handles common plugin payloads', function () {
       const plugin = new fixtures.plugin('watch')
 
-      assert.deepEqual(plugin.format_any('access', { whitelist: true, pass: 'ok' }), {
-        classy: 'bg_green',
-        title: 'ok',
-      })
+      assert.deepEqual(
+        plugin.format_any('access', { whitelist: true, pass: 'ok' }),
+        {
+          classy: 'bg_green',
+          title: 'ok',
+        },
+      )
 
       assert.deepEqual(
-        plugin.format_any('connect.geoip', { human: 'US / CA', distance: '5000' }),
+        plugin.format_any('connect.geoip', {
+          human: 'US / CA',
+          distance: '5000',
+        }),
         {
           title: 'US / CA',
           newval: 'US / C',
@@ -211,7 +225,11 @@ describe('watch', function () {
       })
 
       assert.deepEqual(
-        plugin.format_any('rspamd', { score: 7, is_spam: true, action: 'reject' }),
+        plugin.format_any('rspamd', {
+          score: 7,
+          is_spam: true,
+          action: 'reject',
+        }),
         {
           classy: 'bg_red',
           title: JSON.stringify({ score: 7, is_spam: true, action: 'reject' }),

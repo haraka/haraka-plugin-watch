@@ -359,18 +359,17 @@ function resetTable() {
 }
 
 function displayHeaders() {
-  $('table#connections > thead > tr#labels')
-    .html(
-      [
-        '<th id=id>ID</th>',
-        `<th id=connect   colspan=${state.connect_cols} title="Characteristics of Remote Host">CONNECT</th>`,
-        `<th id=ehlo      colspan=${state.helo_cols} title="RFC5321.EHLO/HELO">HELO</th>`,
-        `<th id=mail_from colspan=${state.mail_from_cols} title="Envelope FROM / Envelope Sender / RFC5321.MailFrom / Return-Path / Reverse-PATH">MAIL FROM</th>`,
-        `<th id=rcpt_to   colspan=${state.rcpt_to_cols} title="Envelope Recipient / RFC5321.RcptTo / Forward Path">RCPT TO</th>`,
-        `<th id=data      colspan=${state.data_cols} title="DATA, the message content, comprised of the headers and body).">DATA</th>`,
-        '<th id=queue title="When a message is accepted, it is delivered into the local mail queue.">QUEUE</th>',
-      ].join('\n\t'),
-    )
+  $('table#connections > thead > tr#labels').html(
+    [
+      '<th id=id>ID</th>',
+      `<th id=connect   colspan=${state.connect_cols} title="Characteristics of Remote Host">CONNECT</th>`,
+      `<th id=ehlo      colspan=${state.helo_cols} title="RFC5321.EHLO/HELO">HELO</th>`,
+      `<th id=mail_from colspan=${state.mail_from_cols} title="Envelope FROM / Envelope Sender / RFC5321.MailFrom / Return-Path / Reverse-PATH">MAIL FROM</th>`,
+      `<th id=rcpt_to   colspan=${state.rcpt_to_cols} title="Envelope Recipient / RFC5321.RcptTo / Forward Path">RCPT TO</th>`,
+      `<th id=data      colspan=${state.data_cols} title="DATA, the message content, comprised of the headers and body).">DATA</th>`,
+      '<th id=queue title="When a message is accepted, it is delivered into the local mail queue.">QUEUE</th>',
+    ].join('\n\t'),
+  )
   $('table#connections > tfoot > tr#helptext').html(
     `<td colspan=${state.total_cols}>For a good time: <a href="telnet://${window.location.hostname}:587">nc ${window.location.hostname} 587</a></td>`,
   )
