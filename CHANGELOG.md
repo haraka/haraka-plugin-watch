@@ -4,6 +4,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Unreleased
 
+### [2.0.9] - 2026-03-17
+
+- style(client): use more camelCase
+- es6: replace ancient AJAX methods with fetch
+- es6: forEach -> for ... of
+- ci: updated shared workflows
+- deps: bump versions to latest
+- css: grouped styles by purpose
+
 ### [2.0.8] - 2025-02-09
 
 - asn: don't log empty update
@@ -158,3 +167,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 [2.0.6]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.0.6
 [2.0.7]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.0.7
 [2.0.8]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.0.8
+[2.0.9]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.0.9

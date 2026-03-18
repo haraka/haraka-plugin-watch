@@ -1,6 +1,6 @@
 'use strict'
 
-const path = require('path')
+const path = require('node:path')
 const redis = require('redis')
 const WebSocket = require('ws')
 
@@ -72,9 +72,6 @@ exports.hook_init_wss = function (next, server) {
 
     plugin.logdebug(`wss client connected: ${Object.keys(ws)}`)
 
-    // send message to just this websocket
-    // ws.send(JSON.stringify({ msg: 'welcome!' });
-
     ws.on('error', (error) => {
       plugin.logerror(`client error: ${error}`)
     })
@@ -82,10 +79,6 @@ exports.hook_init_wss = function (next, server) {
     ws.on('close', (code, message) => {
       plugin.loginfo(`client closed: ${message.toString()} (${code})`)
       watchers--
-    })
-
-    ws.on('message', (message, isBinary) => {
-      plugin.logdebug(`from client: ${isBinary ? message.toString() : message}`)
     })
   })
 
@@ -104,10 +97,7 @@ exports.hook_init_wss = function (next, server) {
 
 exports.w_deny = function (next, connection, params) {
   const pi_code = params[0]
-  // let pi_msg    = params[1];
   const pi_name = params[2]
-  // let pi_function = params[3];
-  // let pi_params   = params[4];
   const pi_hook = params[5]
 
   connection.logdebug(this, `watch deny saw: ${pi_name} deny from ${pi_hook}`)
@@ -273,7 +263,7 @@ exports.redis_subscribe_all_results = async function (next) {
         if (m.result.msg) return
         if (m.result.skip) return
         if (m.result.fail) {
-          if (m.result.fail == 'UA') return
+          if (m.result.fail === 'UA') return
         }
         break
       case 'queue/smtp_forward':
@@ -511,9 +501,6 @@ exports.format_any = function (pi_name, r) {
       break
   }
 
-  this.logdebug(pi_name)
-  this.logdebug(r)
-
   return {
     title: this.get_title(pi_name, r),
     classy: this.get_class(pi_name, r),
@@ -548,7 +535,6 @@ exports.format_fcrdns = function (r) {
       return { title: r.fcrdns.join(' ') }
     }
   }
-  // this.loginfo(r);
   return {}
 }
 
@@ -556,8 +542,6 @@ exports.format_asn = function (r) {
   if (r.pass) return { classy: 'bg_green' }
   if (r.fail) return { title: r.fail, classy: 'bg_lred' }
   if (r.asn) return { newval: r.asn, title: r.net }
-  if (r.asn_score) return {} // extra
-  // this.loginfo(r)
   return {}
 }
 
@@ -698,29 +682,28 @@ exports.get_title = function (pi_name, r) {
 }
 
 exports.format_remote_host = function (uuid, r) {
-  let host = r.host || ''
+  const host = r.host || ''
   const ip = r.ip || ''
-  let hostShort = host
-
-  if (host) {
-    switch (host) {
-      case 'DNSERROR':
-      case 'Unknown':
-        host = ''
-        break
-    }
-    if (host.length > 22) {
-      hostShort = `...${host.substring(host.length - 20)}`
-    }
-  }
+  const hostShort = shorten_hostname(host)
 
   return {
     uuid,
     remote_host: {
-      newval: host ? `${hostShort} / ${ip}` : ip,
-      title: host ? `${host} / ${ip}` : ip,
+      newval: hostShort ? `${hostShort} / ${ip}` : ip,
+      title: hostShort ? `${hostShort} / ${ip}` : ip,
     },
   }
+}
+
+function shorten_hostname(host) {
+  // Normalize hostname for display
+  if (host === 'DNSERROR' || host === 'Unknown') {
+    return ''
+  }
+  if (host.length > 22) {
+    return `...${host.substring(host.length - 20)}`
+  }
+  return host
 }
 
 function get_remote_host(connection) {
@@ -730,22 +713,11 @@ function get_remote_host(connection) {
     if (connection.remote.host) host = connection.remote.host
     if (connection.remote.ip) ip = connection.remote.ip
   }
-  let hostShort = host
 
-  if (host) {
-    switch (host) {
-      case 'DNSERROR':
-      case 'Unknown':
-        host = ''
-        break
-    }
-    if (host.length > 22) {
-      hostShort = `...${host.substring(host.length - 20)}`
-    }
-  }
+  const hostShort = shorten_hostname(host)
 
   return {
-    newval: host ? `${hostShort} / ${ip}` : ip,
-    title: host ? `${host} / ${ip}` : ip,
+    newval: hostShort ? `${hostShort} / ${ip}` : ip,
+    title: hostShort ? `${hostShort} / ${ip}` : ip,
   }
 }

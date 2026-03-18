@@ -1,14 +1,20 @@
 'use strict'
 
-let ws
-let connect_cols
-let helo_cols
-let mail_from_cols
-let rcpt_to_cols
-let data_cols
-let total_cols
-let cxn_cols
-let txn_cols
+// Application state
+const state = {
+  ws: null,
+  connect_cols: 0,
+  helo_cols: 0,
+  mail_from_cols: 0,
+  rcpt_to_cols: 0,
+  data_cols: 0,
+  total_cols: 0,
+  cxn_cols: 0,
+  txn_cols: 0,
+  last_insert: 0,
+  rows_showing: 0,
+  reconnect_timer: null,
+}
 
 const connect_plugins = ['geoip', 'asn', 'p0f', 'dns-list', 'access', 'fcrdns']
 const helo_plugins = ['helo.checks', 'tls', 'auth', 'relay', 'spf']
@@ -49,27 +55,25 @@ const ignore_seen = [
   'queue',
 ]
 
-let rows_showing = 0
-
 function newRowConnectRow1(data, uuid, txnId) {
-  const host = data.remote_host || { title: '', newval: '' }
-  const port = data.local_port ? data.local_port.newval || '25' : '25'
+  const host = data.remote_host ?? { title: '', newval: '' }
+  const port = data.local_port?.newval || '25'
 
   if (txnId > 1) {
     return [
       `<tr class="${uuid}">`,
       `<td rowspan=2 class="uuid got uuid_tiny" title="">${txnId}</td>`,
-      `<td rowspan=2 colspan="${cxn_cols}"></td>`,
+      `<td rowspan=2 colspan="${state.cxn_cols}"></td>`,
     ]
   }
 
   return [
-    `<tr class="spacer"><td colspan="${total_cols}"></td></tr>`,
+    `<tr class="spacer"><td colspan="${state.total_cols}"></td></tr>`,
     `<tr class="${uuid}">`,
-    `<td class="uuid uuid_tiny got" rowspan=2 title=${data.uuid}><a href="/logs/${data.uuid}" target="_blank">${data.uuid}</a></td>`,
-    `<td class="remote_host got" colspan=${connect_cols - 1} title="${host.title}">${host.newval}</td>`,
+    `<td class="uuid uuid_tiny got" rowspan=2 title="${data.uuid}"><a href="/logs/${data.uuid}" target="_blank" rel="noopener noreferrer">${data.uuid}</a></td>`,
+    `<td class="remote_host got" colspan="${state.connect_cols - 1}" title="${host.title}">${host.newval}</td>`,
     `<td class="local_port bg_dgreen" title="connected">${port}</td>`,
-    `<td class="helo lgrey" colspan="${helo_cols}"></td>`,
+    `<td class="helo lgrey" colspan="${state.helo_cols}"></td>`,
   ]
 }
 
@@ -77,8 +81,8 @@ function newRowConnectRow2(data, uuid, txnId) {
   if (txnId > 1) return ''
 
   const res = []
-  connect_plugins.forEach((plugin) => {
-    let nv = shorten_pi(plugin)
+  for (const plugin of connect_plugins) {
+    let nv = shortenPlugin(plugin)
     let newc = ''
     let tit = ''
     if (data[plugin]) {
@@ -87,10 +91,8 @@ function newRowConnectRow2(data, uuid, txnId) {
       if (data[plugin].newval) nv = data[plugin].newval
       if (data[plugin].title) tit = data[plugin].title
     }
-    res.push(
-      `<td class="${css_safe(plugin)} ${newc}" title="${tit}">${nv}</td>`,
-    )
-  })
+    res.push(`<td class="${cssSafe(plugin)} ${newc}" title="${tit}">${nv}</td>`)
+  }
   return res.join('')
 }
 
@@ -98,9 +100,9 @@ function newRowHelo(data, uuid, txnId) {
   if (txnId > 1) return ''
 
   const cols = []
-  helo_plugins.forEach((plugin) => {
-    cols.push(`<td class=${css_safe(plugin)}>${shorten_pi(plugin)}</td>`)
-  })
+  for (const plugin of helo_plugins) {
+    cols.push(`<td class=${cssSafe(plugin)}>${shortenPlugin(plugin)}</td>`)
+  }
   return cols.join('\n')
 }
 
@@ -109,12 +111,12 @@ function newRow(data, uuid) {
   const rowResult = newRowConnectRow1(data, uuid, txnId)
 
   rowResult.push(
-    `<td class="mail_from" colspan=${mail_from_cols}></td>`,
-    `<td class="rcpt_to" colspan=${rcpt_to_cols}></td>`,
+    `<td class="mail_from" colspan=${state.mail_from_cols}></td>`,
+    `<td class="rcpt_to" colspan=${state.rcpt_to_cols}></td>`,
   )
-  data_plugins.slice(0, data_cols).forEach((plugin) => {
-    rowResult.push(`<td class=${css_safe(plugin)}>${shorten_pi(plugin)}</td>`)
-  })
+  for (const plugin of data_plugins.slice(0, state.data_cols)) {
+    rowResult.push(`<td class=${cssSafe(plugin)}>${shortenPlugin(plugin)}</td>`)
+  }
 
   rowResult.push(
     '<td class=queue title="not queued" rowspan=2></td></tr>',
@@ -125,15 +127,16 @@ function newRow(data, uuid) {
   rowResult.push(newRowHelo(data, uuid, txnId))
 
   // transaction data
-  mail_from_plugins.forEach((plugin) => {
-    rowResult.push(`<td class=${css_safe(plugin)}>${shorten_pi(plugin)}</td>`)
-  })
-  rcpt_to_plugins.forEach((plugin) => {
-    rowResult.push(`<td class=${css_safe(plugin)}>${shorten_pi(plugin)}</td>`)
-  })
-  data_plugins.slice(data_cols, data_plugins.length).forEach((plugin) => {
-    rowResult.push(`<td class=${css_safe(plugin)}>${shorten_pi(plugin)}</td>`)
-  })
+  for (const plugin of mail_from_plugins) {
+    rowResult.push(`<td class=${cssSafe(plugin)}>${shortenPlugin(plugin)}</td>`)
+  }
+  for (const plugin of rcpt_to_plugins) {
+    rowResult.push(`<td class=${cssSafe(plugin)}>${shortenPlugin(plugin)}</td>`)
+  }
+  for (let index = state.data_cols; index < data_plugins.length; index++) {
+    const plugin = data_plugins[index]
+    rowResult.push(`<td class=${cssSafe(plugin)}>${shortenPlugin(plugin)}</td>`)
+  }
   rowResult.push('</tr>')
 
   if (txnId > 1) {
@@ -152,18 +155,18 @@ function newRow(data, uuid) {
       .fadeIn(800)
   }
 
-  connect_plugins.concat(['remote_host', 'local_port']).forEach((plugin) => {
-    $(`table#connections > tbody > tr.${uuid}> td.${css_safe(plugin)}`).tipsy()
-  })
+  const tooltipPlugins = connect_plugins.concat(['remote_host', 'local_port'])
+  for (const plugin of tooltipPlugins) {
+    $(`table#connections > tbody > tr.${uuid}> td.${cssSafe(plugin)}`).tipsy()
+  }
 }
 
 function updateRow(row_data, selector) {
   // each bit of data in the WSS sent object represents a TD in the table
-  for (const td_name in row_data) {
-    const td = row_data[td_name]
+  for (const [td_name, td] of Object.entries(row_data)) {
     if (typeof td !== 'object') continue
 
-    const td_name_css = css_safe(td_name)
+    const td_name_css = cssSafe(td_name)
     let td_sel = `${selector} > td.${td_name_css}`
 
     if (td_name === 'spf') {
@@ -174,9 +177,7 @@ function updateRow(row_data, selector) {
       }
     }
 
-    update_seen(td_name)
-
-    // $('#messages').append(`, ${td_name}: `);
+    updateSeen(td_name)
 
     if (td.classy) {
       $(td_sel)
@@ -194,31 +195,30 @@ function updateRow(row_data, selector) {
   $(`${selector} > td`).tipsy()
 }
 
-function httpGetJSON(theUrl) {
-  let xmlHttp = null
-  xmlHttp = new XMLHttpRequest()
-  xmlHttp.open('GET', theUrl, false)
-  xmlHttp.send(null)
-  return JSON.parse(xmlHttp.responseText)
-}
+async function getConfigAndConnect() {
+  let config
 
-function ws_connect() {
-  if (!window.location.origin) {
-    window.location.origin = `${window.location.protocol}//${window.location.hostname}`
-    if (window.location.port)
-      window.location.origin += `:${window.location.port}`
+  if (state.reconnect_timer) {
+    clearTimeout(state.reconnect_timer)
+    state.reconnect_timer = null
   }
 
-  const config = httpGetJSON(`${window.location.origin}/watch/wss_conf`)
-  if (!config.wss_url) {
+  try {
+    config = await fetchJSON(`${window.location.origin}/watch/wss_conf`)
+  } catch (err) {
+    $('span#connect_state').removeClass().addClass('red')
+    $('#messages').append(`config error: ${err.message} `)
+    reconnectWebSocket()
+    return
+  }
+
+  if (!config?.wss_url) {
     config.wss_url = `wss://${window.location.hostname}`
     if (window.location.port) config.wss_url += `:${window.location.port}`
   }
-  ws = new WebSocket(config.wss_url)
+  state.ws = new WebSocket(config.wss_url)
 
-  ws.onopen = function () {
-    // ws.send('something'); // send a message to the server
-    // $('#messages').append("connected ");
+  state.ws.onopen = function () {
     $('span#connect_state').removeClass().addClass('green')
 
     if (config.sampling) {
@@ -226,22 +226,16 @@ function ws_connect() {
     }
   }
 
-  ws.onerror = function (err) {
+  state.ws.onerror = function (err) {
     $('#messages').append(`${err}, ${err.message}`)
   }
 
-  ws.onclose = function () {
-    // $('#messages').append('closed ');
+  state.ws.onclose = function () {
     $('span#connect_state').removeClass().addClass('red')
-    reconnect()
+    reconnectWebSocket()
   }
 
-  let last_insert = 0
-  // let sampled_out = 0;
-
-  ws.onmessage = function (event, flags) {
-    // flags.binary will be set if a binary data is received
-    // flags.masked will be set if the data was masked
+  state.ws.onmessage = function (event) {
     const data = JSON.parse(event.data)
 
     if (data.msg) {
@@ -259,7 +253,7 @@ function ws_connect() {
       return
     }
 
-    const css_valid_uuid = get_css_safe_uuid(data.uuid)
+    const css_valid_uuid = getCssSafeUuid(data.uuid)
     const selector = `table#connections > tbody > tr.${css_valid_uuid}`
 
     if ($(selector).length) {
@@ -268,34 +262,48 @@ function ws_connect() {
       return
     }
 
-    // row doesn't exist (yet)
-    let now
+    const now = Date.now()
 
+    // row doesn't exist (yet)
     if (config.sampling) {
-      now = new Date().getTime()
-      if (now - last_insert < 1000) {
-        // sampled_out++;
-        // $('#messages').append("so:" + sampled_out);
+      if (now - state.last_insert < 1000) {
         return
       }
     }
 
     // time to send a new row
     newRow(data, css_valid_uuid)
-    prune_table()
-    last_insert = now
+    pruneTable()
+    state.last_insert = now
   }
 }
 
-function reconnect() {
-  setTimeout(function () {
-    ws_connect()
-  }, 3 * 1000)
+async function fetchJSON(url) {
+  const response = await fetch(url, {
+    headers: {
+      Accept: 'application/json',
+    },
+  })
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`)
+  }
+
+  return response.json()
 }
 
-function update_seen(plugin) {
-  if (seen_plugins.indexOf(plugin) !== -1) return
-  if (ignore_seen.indexOf(plugin) !== -1) return
+function reconnectWebSocket() {
+  if (state.reconnect_timer) return
+
+  state.reconnect_timer = setTimeout(() => {
+    state.reconnect_timer = null
+    getConfigAndConnect()
+  }, 3000)
+}
+
+function updateSeen(plugin) {
+  if (seen_plugins.includes(plugin)) return
+  if (ignore_seen.includes(plugin)) return
 
   seen_plugins.push(plugin)
 
@@ -321,7 +329,7 @@ function update_seen(plugin) {
         break
     }
     $('#messages').append(`, refresh(${plugin}) `)
-    return reset_table()
+    return resetTable()
   }
 
   bits = plugin.split('/')
@@ -334,67 +342,67 @@ function update_seen(plugin) {
 
   $('#messages').append(`, uncategorized(${plugin}) `)
   data_plugins.push(plugin)
-  return reset_table()
+  resetTable()
 }
 
-function prune_table() {
-  rows_showing++
+function pruneTable() {
+  state.rows_showing++
   const max = 200
-  if (rows_showing < max) return
+  if (state.rows_showing < max) return
   $(`table#connections > tbody > tr:gt(${max * 3})`).fadeOut(2000, () => {
     $(this).remove()
   })
-  rows_showing = $('table#connections > tbody > tr').length
+  state.rows_showing = $('table#connections > tbody > tr').length
 }
 
-function reset_table() {
+function resetTable() {
   // after results for a 'new' plugin that we've never seen arrives, remove
   // the old rows so the table formatting isn't b0rked
   $('table#connections > tbody > tr').fadeOut(5000, () => {
     $(this).remove()
   })
-  countPhaseCols()
-  display_th()
+  countCols()
+  displayHeaders()
 }
 
-function display_th() {
+function displayHeaders() {
   $('table#connections > thead > tr#labels')
     .html(
       [
         '<th id=id>ID</th>',
-        `<th id=connect   colspan=${connect_cols} title="Characteristics of Remote Host">CONNECT</th>`,
-        `<th id=ehlo      colspan=${helo_cols} title="RFC5321.EHLO/HELO">HELO</th>`,
-        `<th id=mail_from colspan=${mail_from_cols} title="Envelope FROM / Envelope Sender / RFC5321.MailFrom / Return-Path / Reverse-PATH">MAIL FROM</th>`,
-        `<th id=rcpt_to   colspan=${rcpt_to_cols} title="Envelope Recipient / RFC5321.RcptTo / Forward Path">RCPT TO</th>`,
-        `<th id=data      colspan=${data_cols} title="DATA, the message content, comprised of the headers and body).">DATA</th>`,
+        `<th id=connect   colspan=${state.connect_cols} title="Characteristics of Remote Host">CONNECT</th>`,
+        `<th id=ehlo      colspan=${state.helo_cols} title="RFC5321.EHLO/HELO">HELO</th>`,
+        `<th id=mail_from colspan=${state.mail_from_cols} title="Envelope FROM / Envelope Sender / RFC5321.MailFrom / Return-Path / Reverse-PATH">MAIL FROM</th>`,
+        `<th id=rcpt_to   colspan=${state.rcpt_to_cols} title="Envelope Recipient / RFC5321.RcptTo / Forward Path">RCPT TO</th>`,
+        `<th id=data      colspan=${state.data_cols} title="DATA, the message content, comprised of the headers and body).">DATA</th>`,
         '<th id=queue title="When a message is accepted, it is delivered into the local mail queue.">QUEUE</th>',
       ].join('\n\t'),
     )
     .tipsy()
   $('table#connections > thead > tr#labels > th').tipsy()
   $('table#connections > tfoot > tr#helptext').html(
-    `<td colspan=${total_cols}>For a good time: <a href="telnet://${window.location.hostname}:587">nc ${window.location.hostname} 587</a></td>`,
+    `<td colspan=${state.total_cols}>For a good time: <a href="telnet://${window.location.hostname}:587">nc ${window.location.hostname} 587</a></td>`,
   )
 }
 
-function countPhaseCols() {
-  connect_cols = connect_plugins.length
-  helo_cols = helo_plugins.length
-  mail_from_cols = mail_from_plugins.length
-  rcpt_to_cols = rcpt_to_plugins.length
-  data_cols = Math.ceil(data_plugins.length / 2)
-  cxn_cols = connect_cols + helo_cols
-  txn_cols = mail_from_cols + rcpt_to_cols + data_cols
-  total_cols = cxn_cols + txn_cols + 3
+function countCols() {
+  state.connect_cols = connect_plugins.length
+  state.helo_cols = helo_plugins.length
+  state.mail_from_cols = mail_from_plugins.length
+  state.rcpt_to_cols = rcpt_to_plugins.length
+  state.data_cols = Math.ceil(data_plugins.length / 2)
+  state.cxn_cols = state.connect_cols + state.helo_cols
+  state.txn_cols = state.mail_from_cols + state.rcpt_to_cols + state.data_cols
+  state.total_cols = state.cxn_cols + state.txn_cols + 3
 }
 
-function css_safe(str) {
+function cssSafe(str) {
   return str.replace(/([^0-9a-zA-Z\-_])/g, '_')
   // http://www.w3.org/TR/CSS21/syndata.html#characters
   // identifiers can contain only [a-zA-Z0-9] <snip> plus - and _
 }
 
-function shorten_pi(name) {
+function shortenPlugin(name) {
   const trims = {
     spamassassin: 'spam',
     early_talker: 'early',
@@ -425,7 +433,7 @@ function shorten_pi(name) {
   return name
 }
 
-function get_css_safe_uuid(uuid) {
+function getCssSafeUuid(uuid) {
   // UUID formats
   // CAF2B05E-5382-4E65-A51E-7DEE6EF31F80    // bits.length=1
   // CAF2B05E-5382-4E65-A51E-7DEE6EF31F80.1  // bits.length=2
@@ -439,4 +447,4 @@ function get_css_safe_uuid(uuid) {
   return `aa_${bits[0].replace(/[_-]/g, '')}_${bits[1]}`
 }
 
-countPhaseCols()
+countCols()
