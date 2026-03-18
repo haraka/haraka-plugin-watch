@@ -55,6 +55,8 @@ const ignore_seen = [
   'queue',
 ]
 
+let hintPopoverEl
+
 function newRowConnectRow1(data, uuid, txnId) {
   const host = data.remote_host ?? { title: '', newval: '' }
   const port = data.local_port?.newval || '25'
@@ -154,11 +156,6 @@ function newRow(data, uuid) {
       .prependTo('table#connections > tbody')
       .fadeIn(800)
   }
-
-  const tooltipPlugins = connect_plugins.concat(['remote_host', 'local_port'])
-  for (const plugin of tooltipPlugins) {
-    $(`table#connections > tbody > tr.${uuid}> td.${cssSafe(plugin)}`).tipsy()
-  }
 }
 
 function updateRow(row_data, selector) {
@@ -183,16 +180,12 @@ function updateRow(row_data, selector) {
       $(td_sel)
         .attr('class', td_name_css) // reset class
         .addClass(td.classy)
-        .tipsy()
     }
     if (td.title) {
-      $(td_sel)
-        .attr('title', `${$(td_sel).attr('title') || ''} ${td.title}`)
-        .tipsy()
+      $(td_sel).attr('title', `${$(td_sel).attr('title') || ''} ${td.title}`)
     }
-    if (td.newval) $(td_sel).html(td.newval).tipsy()
+    if (td.newval) $(td_sel).html(td.newval)
   }
-  $(`${selector} > td`).tipsy()
 }
 
 async function getConfigAndConnect() {
@@ -378,11 +371,52 @@ function displayHeaders() {
         '<th id=queue title="When a message is accepted, it is delivered into the local mail queue.">QUEUE</th>',
       ].join('\n\t'),
     )
-    .tipsy()
-  $('table#connections > thead > tr#labels > th').tipsy()
   $('table#connections > tfoot > tr#helptext').html(
     `<td colspan=${state.total_cols}>For a good time: <a href="telnet://${window.location.hostname}:587">nc ${window.location.hostname} 587</a></td>`,
   )
+}
+
+function hideHintPopover() {
+  if (!hintPopoverEl || !hintPopoverEl.matches(':popover-open')) return
+  hintPopoverEl.hidePopover()
+}
+
+function positionHintPopover(target) {
+  if (!hintPopoverEl) return
+  const rect = target.getBoundingClientRect()
+  hintPopoverEl.style.position = 'fixed'
+  hintPopoverEl.style.left = `${Math.round(rect.left + rect.width / 2)}px`
+  hintPopoverEl.style.top = `${Math.round(rect.top - 8)}px`
+  hintPopoverEl.style.transform = 'translate(-50%, -100%)'
+}
+
+function showHintPopover(target) {
+  if (!hintPopoverEl || typeof hintPopoverEl.showPopover !== 'function') return
+
+  const hint = target.getAttribute('title')
+  if (!hint) {
+    hideHintPopover()
+    return
+  }
+
+  hintPopoverEl.textContent = hint
+  positionHintPopover(target)
+  if (!hintPopoverEl.matches(':popover-open')) {
+    hintPopoverEl.showPopover()
+  }
+}
+
+function initHintPopover() {
+  hintPopoverEl = document.getElementById('watch-hint-popover')
+  if (!hintPopoverEl || typeof hintPopoverEl.showPopover !== 'function') return
+
+  $(document).on('mouseenter focusin', '[title]', function () {
+    showHintPopover(this)
+  })
+
+  $(document).on('mouseleave focusout', '[title]', () => {
+    hideHintPopover()
+  })
 }
 
 function countCols() {
@@ -448,3 +482,4 @@ function getCssSafeUuid(uuid) {
 }
 
 countCols()
+initHintPopover()
