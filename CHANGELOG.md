@@ -43,8 +43,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### [2.0.4] - 2023-12-29
 
-#### Added
-
 - feat(ignore): ignore configured IPs (useful to suppress monitoring)
 - feat(dns-list): added plugin config
 - eslint prefer-template #53
