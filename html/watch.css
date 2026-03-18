@@ -259,3 +259,23 @@ nav ul li a:focus,
 nav ul li a:active {
   outline: none;
 }
+
+.ui-menu {
+  width: 75px;
+}
+#head_next_right {
+  float: right;
+  max-width: 200px;
+}
+#watch-hint-popover[popover] {
+  margin: 0;
+  border: 1px solid #4b545f;
+  border-radius: 4px;
+  padding: 4px 8px;
+  color: #fff;
+  background: #4b545f;
+  font-size: 8pt;
+  max-width: min(420px, 80vw);
+  white-space: normal;
+  pointer-events: none;
+}
