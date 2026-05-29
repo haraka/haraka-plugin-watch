@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict')
 const { describe, it } = require('node:test')
 const redis = require('redis')
-const fixtures = require('haraka-test-fixtures')
+const { makePlugin } = require('haraka-test-fixtures')
 
 function waitFor(condition, timeoutMs = 2000, intervalMs = 20) {
   const started = Date.now()
@@ -23,7 +23,7 @@ function waitFor(condition, timeoutMs = 2000, intervalMs = 20) {
 }
 
 async function createSubscribedWatchPlugin() {
-  const plugin = new fixtures.plugin('watch')
+  const plugin = makePlugin('watch', { register: false })
   plugin.server = { notes: {} }
   plugin.register()
   plugin.load_redis_ini()

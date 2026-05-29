@@ -72,9 +72,9 @@ function newRowConnectRow1(data, uuid, txnId) {
   return [
     `<tr class="spacer"><td colspan="${state.total_cols}"></td></tr>`,
     `<tr class="${uuid}">`,
-    `<td class="uuid uuid_tiny got" rowspan=2 title="${data.uuid}"><a href="/logs/${data.uuid}" target="_blank" rel="noopener noreferrer">${data.uuid}</a></td>`,
-    `<td class="remote_host got" colspan="${state.connect_cols - 1}" title="${host.title}">${host.newval}</td>`,
-    `<td class="local_port bg_dgreen" title="connected">${port}</td>`,
+    `<td class="uuid uuid_tiny got" rowspan=2 title="${escapeHtml(data.uuid)}"><a href="/logs/${encodeURIComponent(data.uuid)}" target="_blank" rel="noopener noreferrer">${escapeHtml(data.uuid)}</a></td>`,
+    `<td class="remote_host got" colspan="${state.connect_cols - 1}" title="${escapeHtml(host.title)}">${escapeHtml(host.newval)}</td>`,
+    `<td class="local_port bg_dgreen" title="connected">${escapeHtml(port)}</td>`,
     `<td class="helo lgrey" colspan="${state.helo_cols}"></td>`,
   ]
 }
@@ -93,7 +93,9 @@ function newRowConnectRow2(data, uuid, txnId) {
       if (data[plugin].newval) nv = data[plugin].newval
       if (data[plugin].title) tit = data[plugin].title
     }
-    res.push(`<td class="${cssSafe(plugin)} ${newc}" title="${tit}">${nv}</td>`)
+    res.push(
+      `<td class="${cssSafe(plugin)} ${escapeHtml(newc)}" title="${escapeHtml(tit)}">${escapeHtml(nv)}</td>`,
+    )
   }
   return res.join('')
 }
@@ -184,7 +186,7 @@ function updateRow(row_data, selector) {
     if (td.title) {
       $(td_sel).attr('title', `${$(td_sel).attr('title') || ''} ${td.title}`)
     }
-    if (td.newval) $(td_sel).html(td.newval)
+    if (td.newval) $(td_sel).text(td.newval)
   }
 }
 
@@ -206,8 +208,8 @@ async function getConfigAndConnect() {
   }
 
   if (!config?.wss_url) {
-    config.wss_url = `wss://${window.location.hostname}`
-    if (window.location.port) config.wss_url += `:${window.location.port}`
+    const wsScheme = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+    config.wss_url = `${wsScheme}//${window.location.host}`
   }
   state.ws = new WebSocket(config.wss_url)
 
@@ -342,7 +344,7 @@ function pruneTable() {
   state.rows_showing++
   const max = 200
   if (state.rows_showing < max) return
-  $(`table#connections > tbody > tr:gt(${max * 3})`).fadeOut(2000, () => {
+  $(`table#connections > tbody > tr:gt(${max * 3})`).fadeOut(2000, function () {
     $(this).remove()
   })
   state.rows_showing = $('table#connections > tbody > tr').length
@@ -351,11 +353,25 @@ function pruneTable() {
 function resetTable() {
   // after results for a 'new' plugin that we've never seen arrives, remove
   // the old rows so the table formatting isn't b0rked
-  $('table#connections > tbody > tr').fadeOut(5000, () => {
+  $('table#connections > tbody > tr').fadeOut(5000, function () {
     $(this).remove()
   })
   countCols()
   displayHeaders()
+}
+
+function emptyTable() {
+  const rows = $('table#connections > tbody > tr').get().reverse()
+  let delay = 0
+  for (const row of rows) {
+    setTimeout(() => {
+      $(row).fadeOut(700, function () {
+        $(this).remove()
+        state.rows_showing = $('table#connections > tbody > tr').length
+      })
+    }, delay)
+    delay += 300
+  }
 }
 
 function displayHeaders() {
@@ -375,9 +391,16 @@ function displayHeaders() {
   )
 }
 
-function hideHintPopover() {
-  if (!hintPopoverEl || !hintPopoverEl.matches(':popover-open')) return
-  hintPopoverEl.hidePopover()
+function hideHintPopover(target) {
+  if (target) {
+    // restore the title we stashed while the popover was showing
+    const hint = target.getAttribute('data-hint')
+    if (hint !== null) {
+      target.setAttribute('title', hint)
+      target.removeAttribute('data-hint')
+    }
+  }
+  if (hintPopoverEl?.matches(':popover-open')) hintPopoverEl.hidePopover()
 }
 
 function positionHintPopover(target) {
@@ -398,6 +421,11 @@ function showHintPopover(target) {
     return
   }
 
+  // stash the title in data-hint so the browser's native tooltip doesn't fire
+  // alongside the popover; restored on mouseleave/focusout
+  target.setAttribute('data-hint', hint)
+  target.removeAttribute('title')
+
   hintPopoverEl.textContent = hint
   positionHintPopover(target)
   if (!hintPopoverEl.matches(':popover-open')) {
@@ -413,8 +441,8 @@ function initHintPopover() {
     showHintPopover(this)
   })
 
-  $(document).on('mouseleave focusout', '[title]', () => {
-    hideHintPopover()
+  $(document).on('mouseleave focusout', '[data-hint], [title]', function () {
+    hideHintPopover(this)
   })
 }
 
@@ -433,6 +461,20 @@ function cssSafe(str) {
   return str.replace(/([^0-9a-zA-Z\-_])/g, '_')
   // http://www.w3.org/TR/CSS21/syndata.html#characters
   // identifiers can contain only [a-zA-Z0-9] <snip> plus - and _
+}
+
+const htmlEntities = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+}
+
+function escapeHtml(value) {
+  // payload fields (HELO, hostnames, addresses, plugin output) are
+  // attacker-influenced; escape before building HTML strings
+  return String(value).replace(/[&<>"']/g, (ch) => htmlEntities[ch])
 }
 
 function shortenPlugin(name) {
@@ -480,5 +522,23 @@ function getCssSafeUuid(uuid) {
   return `aa_${bits[0].replace(/[_-]/g, '')}_${bits[1]}`
 }
 
+function initMenu() {
+  // delegated so binding works regardless of when the menu markup is parsed
+  $(document).on('click', '#menu_clear', () => $('div#messages').empty())
+  $(document).on('click', '#menu_empty', () => emptyTable())
+}
+
+function initApp() {
+  initHintPopover()
+  displayHeaders()
+
+  if (!('WebSocket' in window)) {
+    alert('You need a browser that supports WebSockets.')
+    return
+  }
+  getConfigAndConnect()
+}
+
 countCols()
-initHintPopover()
+initMenu()
+$(initApp) // run once the DOM is ready

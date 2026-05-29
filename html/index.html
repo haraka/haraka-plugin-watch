@@ -11,43 +11,6 @@
     <link rel="stylesheet" href="/watch/watch.css" />
   </head>
   <body>
-    <script>
-      $(document).ready(() => {
-        displayHeaders()
-        if (!('WebSocket' in window)) {
-          alert('<p>You need a browser that supports WebSockets.</p>')
-        } else {
-          getConfigAndConnect() // has WebSockets
-        }
-      })
-    </script>
-
-    <div id="dialog-form" title="Log in" style="display: none">
-      <p class="validateTips">All form fields are required.</p>
-      <form>
-        <fieldset>
-          <label for="email">Email</label>
-          <input
-            type="text"
-            name="email"
-            id="email"
-            value=""
-            class="text ui-widget-content ui-corner-all"
-            placeholder="email"
-          />
-          <label for="password">Password</label>
-          <input
-            type="password"
-            name="password"
-            id="password"
-            value=""
-            class="text ui-widget-content ui-corner-all"
-            placeholder="password"
-          />
-        </fieldset>
-      </form>
-    </div>
-
     <div id="headline">
       <span id="head_right">
         <!-- http://line25.com/tutorials/how-to-create-a-pure-css-dropdown-menu -->
@@ -56,10 +19,8 @@
             <li>
               Menu
               <ul>
-                <li>
-                  <a onclick="$('div#messages').empty()">Clear Messages</a>
-                </li>
-                <li><a onclick="resetTable()">Empty Table</a></li>
+                <li><a id="menu_clear">Clear Messages</a></li>
+                <li><a id="menu_empty">Empty Table</a></li>
               </ul>
             </li>
           </ul>
@@ -71,10 +32,13 @@
       </span>
       <span id="head_left">
         <h1>
-          Haraka Activity
-          <span id="connect_state" title="Click to connect/reconnect"
-            >Monitor</span
-          >
+          <a
+            href="https://github.com/haraka/haraka-plugin-watch"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Watch</a
+          >: Haraka Activity
+          <span id="connect_state">Monitor</span>
         </h1>
         <div>Displays in real time. Hover or tap results for more info.</div>
       </span>

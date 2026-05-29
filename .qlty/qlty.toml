@@ -1,0 +1,14 @@
+exclude_patterns = [
+  ".release/**",
+  "test/**",
+  "eslint.config.mjs",
+  "coverage/**",
+  "node_modules/**",
+  "html/jquery.tipsy.js",
+]
+
+[smells.file_complexity]
+threshold = 1000
+
+[smells.return_statements]
+enabled = false
