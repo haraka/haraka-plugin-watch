@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 - security(client): escape payload fields before building HTML
   - use `.text()` for cell values
+- security(client): resolve cell selectors via `.find()`
 - fix(client): derive WebSocket scheme from page protocol (ws/wss)
 - feat(client): Empty Table fades rows bottom-up, sparing live connections
 - refactor(client): move all behavior into client.js
@@ -16,7 +17,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - refactor: drive result rendering from a plugin registry
 - refactor: flatten get_class into small early-return helpers (cuts qlty smells)
 - fix: color access by ACL hit; soft fails (e.g. invalid domain) are yellow
-- fix: color spamassassin by `score` (was reading `hits`)
+- fix: color spamassassin by `score` (was `hits`)
+- fix(p0f): show the OS color on the cell
 - fix: keep the port lit on deny; only disconnect clears it
 - fix: scale spamassassin/rspamd color by score
 - doc: add Security section noting watch has no access control

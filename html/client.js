@@ -160,6 +160,13 @@ function newRow(data, uuid) {
   }
 }
 
+function findEls(selector) {
+  // resolve via .find() rather than $(selector): $() can interpret a string as
+  // HTML, so keep data-derived selectors out of that sink. .find() is
+  // selector-only (and still supports :first/:last).
+  return $(document).find(selector)
+}
+
 function updateRow(row_data, selector) {
   // each bit of data in the WSS sent object represents a TD in the table
   for (const [td_name, td] of Object.entries(row_data)) {
@@ -178,15 +185,14 @@ function updateRow(row_data, selector) {
 
     updateSeen(td_name)
 
+    const cell = findEls(td_sel)
     if (td.classy) {
-      $(td_sel)
-        .attr('class', td_name_css) // reset class
-        .addClass(td.classy)
+      cell.attr('class', td_name_css).addClass(td.classy) // reset class
     }
     if (td.title) {
-      $(td_sel).attr('title', `${$(td_sel).attr('title') || ''} ${td.title}`)
+      cell.attr('title', `${cell.attr('title') || ''} ${td.title}`)
     }
-    if (td.newval) $(td_sel).text(td.newval)
+    if (td.newval) cell.text(td.newval)
   }
 }
 
@@ -251,7 +257,7 @@ async function getConfigAndConnect() {
     const css_valid_uuid = getCssSafeUuid(data.uuid)
     const selector = `table#connections > tbody > tr.${css_valid_uuid}`
 
-    if ($(selector).length) {
+    if (findEls(selector).length) {
       // if the row exists
       updateRow(data, selector)
       return

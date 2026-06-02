@@ -154,6 +154,7 @@ describe('watch', function () {
         {
           title: 'Windows 10, 3 hops',
           newval: 'Windows',
+          classy: 'bg_red',
         },
       )
 
@@ -459,7 +460,7 @@ describe('watch', function () {
           os_flavor: '13',
           distance: 2,
         }),
-        { title: 'FreeBSD 13, 2 hops', newval: 'FreeBSD' },
+        { title: 'FreeBSD 13, 2 hops', newval: 'FreeBSD', classy: 'bg_green' },
       )
 
       assert.deepEqual(plugin.format_any('uribl', { fail: 'listed' }), {

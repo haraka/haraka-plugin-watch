@@ -119,8 +119,8 @@ exports.format_p0f = function (r) {
     title: `${r.os_name} ${r.os_flavor}, ${r.distance} hops`,
     newval: r.os_name,
   }
-  if (/freebsd|mac|ios/i.test(r.os_name)) r.classy = 'bg_green'
-  if (/windows/i.test(r.os_name)) r.classy = 'bg_red'
+  if (/freebsd|mac|ios/i.test(r.os_name)) f.classy = 'bg_green'
+  if (/windows/i.test(r.os_name)) f.classy = 'bg_red'
   return f
 }
 
