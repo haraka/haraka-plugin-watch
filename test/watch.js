@@ -799,5 +799,30 @@ describe('watch', function () {
 
       assert.equal(sent.length, 0)
     })
+
+    it('lights the asn cell from karma asn_score', async function () {
+      const { sent, fire } = await setup()
+
+      fire({ plugin: 'karma', result: { asn_score: 1177089 } })
+      assert.deepEqual(sent.at(-1), {
+        uuid: 'ABC',
+        asn: { classy: 'bg_lgreen' },
+      })
+
+      sent.length = 0
+      fire({ plugin: 'karma', result: { asn_score: -42 } })
+      assert.deepEqual(sent.at(-1), { uuid: 'ABC', asn: { classy: 'bg_lred' } })
+
+      // a karma score colors the karma cell, not asn
+      sent.length = 0
+      fire({ plugin: 'karma', result: { score: 4 } })
+      assert.equal(sent.at(-1).asn, undefined)
+      assert.equal(sent.at(-1).karma.classy, 'bg_green')
+
+      // an asn_score of zero leaves the cell untouched
+      sent.length = 0
+      fire({ plugin: 'karma', result: { asn_score: 0 } })
+      assert.equal(sent.length, 0)
+    })
   })
 })

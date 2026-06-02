@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - chore(html): remove the unused login dialog and stale reconnect hint
 - refactor: drive result rendering from a plugin registry
 - refactor: flatten get_class into small early-return helpers (cuts qlty smells)
+- feat: color the asn cell by karma's asn_score (light green/red)
 - fix: color access by ACL hit; soft fails (e.g. invalid domain) are yellow
 - fix: color spamassassin by `score` (was `hits`)
 - fix(p0f): show the OS color on the cell

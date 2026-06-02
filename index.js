@@ -211,15 +211,17 @@ exports.redis_subscribe_all_results = async function (next) {
     const phase = phase_handlers[m.plugin]
     if (phase && phase(uuid, m.result)) return
 
-    if (display.should_drop(m.plugin, m.result)) return
-
-    wss.broadcast({
-      uuid,
-      [display.get_plugin_name(m.plugin)]: display.format_result(
+    // cross-plugin cells (e.g. karma asn_score -> asn) light up even when the
+    // result is dropped for its own cell
+    const cells = display.extra_cells(m.plugin, m.result)
+    if (!display.should_drop(m.plugin, m.result)) {
+      cells[display.get_plugin_name(m.plugin)] = display.format_result(
         m.plugin,
         m.result,
-      ),
-    })
+      )
+    }
+
+    if (Object.keys(cells).length) wss.broadcast({ uuid, ...cells })
   })
 
   this.logdebug(this, `pSubscribed to result-*`)

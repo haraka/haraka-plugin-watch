@@ -331,6 +331,14 @@ function format_karma(r) {
   if (r.pass) return { classy: 'bg_green' }
 }
 
+// karma reports the remote's ASN reputation as asn_score; light the asn cell
+// green/red by its sign (the karma cell itself ignores this message)
+function karma_asn_cell(r) {
+  const score = parseFloat(r.asn_score)
+  if (!score) return null
+  return { asn: { classy: score > 0 ? 'bg_lgreen' : 'bg_lred' } }
+}
+
 function format_mail_from(r) {
   if (!r.address) return
   return { newval: shorten(r.address), classy: 'black', title: r.address }
@@ -424,7 +432,11 @@ const registry = {
   uribl: { drop: ['pass', 'skip'], format: format_list },
   early_talker: { drop: noise_text, format: pass_fail },
   'helo.checks': { drop: noise_text, format: pass_fail },
-  karma: { drop: ['awards', 'msg', 'todo'], format: format_karma },
+  karma: {
+    drop: ['awards', 'msg', 'todo', 'asn_score'],
+    format: format_karma,
+    extra: karma_asn_cell,
+  },
   'mail_from.is_resolvable': { drop: ['msg'], format: pass_fail },
   'known-senders': { drop: ['rcpt_ods', 'sender'], format: pass_fail },
   'rcpt_to.in_host_list': { drop: ['msg', 'skip'], format: pass_fail },
@@ -491,4 +503,11 @@ exports.format_result = function (pi_name, r) {
       classy: exports.get_class(name, r),
     }
   )
+}
+
+// cross-plugin cells a result drives in addition to its own (e.g. karma's
+// asn_score lighting the asn cell). Computed independently of should_drop.
+exports.extra_cells = function (pi_name, r) {
+  const entry = registry[exports.get_plugin_name(pi_name)]
+  return entry?.extra ? entry.extra(r) || {} : {}
 }
