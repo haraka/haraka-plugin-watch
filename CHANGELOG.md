@@ -4,6 +4,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Unreleased
 
+### [2.1.0] - 2026-06-01
+
+- security(client): escape payload fields before building HTML
+  - use `.text()` for cell values
+- security(client): resolve cell selectors via `.find()`
+- fix(client): derive WebSocket scheme from page protocol (ws/wss)
+- feat(client): Empty Table fades rows bottom-up, sparing live connections
+- refactor(client): move all behavior into client.js
+- fix(client): initialize the hint popover on DOM ready
+- chore(html): remove the unused login dialog and stale reconnect hint
+- refactor: drive result rendering from a plugin registry
+- refactor: flatten get_class into small early-return helpers (cuts qlty smells)
+- feat: color the asn cell by karma's asn_score (light green/red)
+- fix: color access by ACL hit; soft fails (e.g. invalid domain) are yellow
+- fix: color spamassassin by `score` (was `hits`)
+- fix(p0f): show the OS color on the cell
+- fix: keep the port lit on deny; only disconnect clears it
+- fix: scale spamassassin/rspamd color by score
+- doc: add Security section noting watch has no access control
+- test: cover hooks, result handler and format branches (62% -> 97%)
+- test: refactored against test-fixtures 1.7.0
+- style: replace `wss.clients.forEach` with for..of in `hook_init_wss`
+
 ### [2.0.9] - 2026-03-17
 
 - style(client): use more camelCase
@@ -166,3 +189,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 [2.0.7]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.0.7
 [2.0.8]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.0.8
 [2.0.9]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.0.9
+[2.1.0]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.1.0

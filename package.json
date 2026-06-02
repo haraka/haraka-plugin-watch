@@ -1,21 +1,25 @@
 {
   "name": "haraka-plugin-watch",
-  "version": "2.0.9",
+  "version": "2.1.0",
   "description": "Watch live SMTP traffic in a web interface",
   "main": "index.js",
   "files": [
     "CHANGELOG.md",
     "config",
+    "plugins.js",
     "html"
   ],
   "scripts": {
+    "prepare": "git rev-parse --git-dir >/dev/null 2>&1 && git config core.hooksPath .githooks || true",
     "format": "npm run prettier:fix && npm run lint:fix",
     "lint": "npx eslint *.js html/client.js test",
     "lint:fix": "npx eslint *.js html/client.js test --fix",
     "prettier": "npx prettier . --check",
     "prettier:fix": "npx prettier . --write --log-level=warn",
+    "qlty": "qlty smells --all",
     "test": "node --test test/*.js",
-    "test:coverage": "npx c8 --reporter=html --reporter=text --reporter=text-summary npm test",
+    "test:coverage": "node --test --experimental-test-coverage --test-coverage-exclude=package.json --test-coverage-exclude=test/*.js test/*.js",
+    "test:coverage:lcov": "mkdir -p coverage && node --test --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=coverage/lcov.info test/*.js",
     "versions": "npx dependency-version-checker check",
     "versions:fix": "npx dependency-version-checker update"
   },
@@ -40,12 +44,12 @@
   },
   "homepage": "https://github.com/haraka/haraka-plugin-watch#readme",
   "dependencies": {
-    "haraka-plugin-redis": "^2.0.11",
-    "redis": "^5.11.0",
-    "ws": "^8.19.0"
+    "haraka-plugin-redis": "^2.1.0",
+    "redis": "^6.0.0",
+    "ws": "^8.21.0"
   },
   "devDependencies": {
-    "@haraka/eslint-config": "^2.0.4",
-    "haraka-test-fixtures": "^1.4.0"
+    "@haraka/eslint-config": "^3.0.0",
+    "haraka-test-fixtures": "^1.7.0"
   }
 }

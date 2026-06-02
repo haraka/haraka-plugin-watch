@@ -1,7 +1,6 @@
 # haraka-plugin-watch
 
-[![Build Status][ci-img]][ci-url]
-[![Code Climate][clim-img]][clim-url]
+[![Test][ci-img]][ci-url] [![Cover][cov-img]][cov-url] [![Qlty][qlty-img]][qlty-url]
 
 Watch live SMTP traffic in a web interface.
 
@@ -14,6 +13,18 @@ Watch live SMTP traffic in a web interface.
 3. Point your web browser at http://mail.your-domain.com/watch/
 
 Enjoy the blinky lights.
+
+## Security
+
+Watch exposes live SMTP activity — connection metadata, HELO/MAIL FROM, plugin
+outcomes, and queue status — to anyone who can reach the `/watch/` endpoint. The
+plugin performs no authentication; it mounts on Haraka's shared HTTP/WebSocket
+server, which has none either.
+
+Do not expose it directly to untrusted networks. Restrict access upstream:
+
+- Put it behind a reverse proxy (haproxy, nginx) that enforces authentication.
+- Or bind the HTTP `listen` in http.ini to localhost or an admin-only interface.
 
 ## Tips
 
@@ -45,7 +56,11 @@ Config options are set in watch.ini.
   - [Watch not working](https://github.com/haraka/Haraka/issues/2385)
   - [Running under AWS ELB](https://github.com/haraka/haraka-plugin-watch/issues/2)
 
+<!-- leave these buried at the bottom of the document -->
+
 [ci-img]: https://github.com/haraka/haraka-plugin-watch/actions/workflows/ci.yml/badge.svg
 [ci-url]: https://github.com/haraka/haraka-plugin-watch/actions/workflows/ci.yml
-[clim-img]: https://codeclimate.com/github/haraka/haraka-plugin-watch/badges/gpa.svg
-[clim-url]: https://codeclimate.com/github/haraka/haraka-plugin-watch
+[cov-img]: https://codecov.io/github/haraka/haraka-plugin-watch/coverage.svg
+[cov-url]: https://codecov.io/github/haraka/haraka-plugin-watch
+[qlty-img]: https://qlty.sh/gh/haraka/projects/haraka-plugin-watch/maintainability.svg
+[qlty-url]: https://qlty.sh/gh/haraka/projects/haraka-plugin-watch
