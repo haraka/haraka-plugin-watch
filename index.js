@@ -9,6 +9,46 @@ const display = require('./plugins')
 let wss = { broadcast() {} }
 let watchers = 0
 
+// Background classes a "bad" verdict can carry, least → most severe.
+const SEVERITY_RANK = {
+  bg_lred: 1,
+  bg_red: 2,
+  bg_dred: 3,
+}
+
+// Default sticky cells when [sticky]cells is absent from watch.ini.
+const STICKY_CELLS = new Set(['uribl'])
+
+const base_uuid = (uuid) => uuid.replace(/\.\d+$/, '')
+
+// Floor each sticky cell to the worst severity seen on this connection, so a
+// later/weaker transaction result can't visually downgrade an earlier verdict.
+// State lives on the plugin instance (base uuid → cell → class) and is cleared
+// on disconnect.
+function stick_severity(plugin, uuid, cells) {
+  const store = (plugin.sticky_severity ??= new Map())
+  const base = base_uuid(uuid)
+  for (const name of plugin.sticky_cells ?? STICKY_CELLS) {
+    const cell = cells[name]
+    if (!cell?.classy) continue
+
+    let worst = store.get(base)
+    const prev = worst?.get(name)
+    const rank = SEVERITY_RANK[cell.classy]
+
+    if (!rank) {
+      if (prev) cell.classy = prev // unranked class: inherit prior worst
+      continue
+    }
+    if (!prev || rank >= SEVERITY_RANK[prev]) {
+      if (!worst) store.set(base, (worst = new Map()))
+      worst.set(name, cell.classy)
+    } else {
+      cell.classy = prev
+    }
+  }
+}
+
 exports.register = function () {
   this.inherits('haraka-plugin-redis')
 
@@ -33,6 +73,16 @@ exports.load_watch_ini = function () {
   )
 
   if (this.cfg.ignore === undefined) this.cfg.ignore = {}
+
+  const cells = this.cfg.sticky?.cells
+  this.sticky_cells = cells
+    ? new Set(
+        String(cells)
+          .split(',')
+          .map((name) => name.trim())
+          .filter(Boolean),
+      )
+    : STICKY_CELLS
 }
 
 exports.hook_init_http = function (next, server) {
@@ -115,6 +165,7 @@ exports.w_deny = function (next, connection, params) {
   const report_as = display.get_plugin_name(pi_name)
   if (req[report_as]) req[report_as].classy = bg_class
   if (!req[report_as]) req[report_as] = { classy: bg_class }
+  stick_severity(this, req.uuid, req)
 
   wss.broadcast(req)
   next()
@@ -160,6 +211,7 @@ const phase_handlers = {
   },
   disconnect(uuid, r) {
     if (!r.duration) return false
+    this.sticky_severity?.delete(base_uuid(uuid))
     wss.broadcast({
       uuid,
       queue: { newval: r.duration.toFixed(1) },
@@ -209,7 +261,7 @@ exports.redis_subscribe_all_results = async function (next) {
     const uuid = match[1]
 
     const phase = phase_handlers[m.plugin]
-    if (phase && phase(uuid, m.result)) return
+    if (phase && phase.call(this, uuid, m.result)) return
 
     // cross-plugin cells (e.g. karma asn_score -> asn) light up even when the
     // result is dropped for its own cell
@@ -220,6 +272,7 @@ exports.redis_subscribe_all_results = async function (next) {
         m.result,
       )
     }
+    stick_severity(this, uuid, cells)
 
     if (Object.keys(cells).length) wss.broadcast({ uuid, ...cells })
   })
