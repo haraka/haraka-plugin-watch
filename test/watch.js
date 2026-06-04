@@ -61,6 +61,12 @@ describe('watch', function () {
     assert.equal(plugin.cfg.main.sampling, false)
   })
 
+  it('loads sticky cells from watch.ini', function () {
+    const plugin = makePlugin('watch', { register: false })
+    plugin.load_watch_ini()
+    assert.ok(plugin.sticky_cells.has('uribl'))
+  })
+
   it('inherits from haraka-plugin-redis', function () {
     const plugin = makePlugin('watch', { register: false })
     plugin.inherits('haraka-plugin-redis')
@@ -710,7 +716,8 @@ describe('watch', function () {
       plugin.load_watch_ini()
       await initWss(plugin, sent)
       const handler = await captureResultHandler(plugin)
-      const fire = (payload) => handler(JSON.stringify(payload), 'result-ABC')
+      const fire = (payload, channel = 'result-ABC') =>
+        handler(JSON.stringify(payload), channel)
       return { sent, plugin, fire }
     }
 
@@ -769,6 +776,97 @@ describe('watch', function () {
         uuid: 'ABC',
         spf: { title: 'Pass', scope: 'mfrom', classy: 'bg_green' },
       })
+    })
+
+    it('keeps worst uribl severity across transaction ids', async function () {
+      const { sent, plugin, fire } = await setup()
+      const connection = {
+        uuid: 'ABC',
+        transaction: { uuid: 'ABC.1' },
+        remote: { host: 'mail.example.net', ip: '192.0.2.5' },
+        logdebug() {},
+      }
+
+      await new Promise((resolve) =>
+        plugin.w_deny(resolve, connection, [
+          DENY,
+          null,
+          'uribl',
+          null,
+          null,
+          'lookup_rdns',
+        ]),
+      )
+      assert.equal(sent.at(-1).uribl.classy, 'bg_dred')
+
+      sent.length = 0
+      fire(
+        {
+          plugin: 'uribl',
+          result: { fail: 'envfrom/example.net/dbl.spamhaus' },
+        },
+        'result-ABC.2',
+      )
+      assert.equal(sent.at(-1).uuid, 'ABC.2')
+      assert.equal(sent.at(-1).uribl.classy, 'bg_dred')
+    })
+
+    it('clears uribl sticky state on disconnect', async function () {
+      const { sent, plugin, fire } = await setup()
+      const connection = {
+        uuid: 'ABC',
+        transaction: { uuid: 'ABC.1' },
+        remote: { host: 'mail.example.net', ip: '192.0.2.5' },
+        logdebug() {},
+      }
+
+      await new Promise((resolve) =>
+        plugin.w_deny(resolve, connection, [
+          DENY,
+          null,
+          'uribl',
+          null,
+          null,
+          'lookup_rdns',
+        ]),
+      )
+      assert.equal(sent.at(-1).uribl.classy, 'bg_dred')
+
+      fire({ plugin: 'disconnect', result: { duration: 1 } }, 'result-ABC.1')
+      sent.length = 0
+
+      fire(
+        {
+          plugin: 'uribl',
+          result: { fail: 'envfrom/example.net/dbl.spamhaus' },
+        },
+        'result-ABC.2',
+      )
+      assert.equal(sent.at(-1).uribl.classy, 'bg_lred')
+    })
+
+    it('does not make non-sticky cells sticky', async function () {
+      const { sent, plugin } = await setup()
+      const deny = (txn, code) =>
+        new Promise((resolve) =>
+          plugin.w_deny(
+            resolve,
+            {
+              uuid: 'ABC',
+              transaction: { uuid: txn },
+              remote: { host: 'mail.example.net', ip: '192.0.2.5' },
+              logdebug() {},
+            },
+            [code, null, 'dnsbl', null, null, 'lookup_rdns'],
+          ),
+        )
+
+      await deny('ABC.1', DENY)
+      assert.equal(sent.at(-1).dnsbl.classy, 'bg_dred')
+
+      sent.length = 0
+      await deny('ABC.2', DENYSOFT)
+      assert.equal(sent.at(-1).dnsbl.classy, 'bg_dyellow')
     })
 
     it('drops noisy, malformed and ignored results', async function () {

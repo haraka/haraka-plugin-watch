@@ -4,6 +4,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Unreleased
 
+- feat: sticky cells, track worse score for a plugin across conn
+- fix: ignore connection reset
+
 ### [2.1.0] - 2026-06-01
 
 - security(client): escape payload fields before building HTML

@@ -171,6 +171,7 @@ function updateRow(row_data, selector) {
   // each bit of data in the WSS sent object represents a TD in the table
   for (const [td_name, td] of Object.entries(row_data)) {
     if (typeof td !== 'object') continue
+    if (td_name === 'reset') continue
 
     const td_name_css = cssSafe(td_name)
     let td_sel = `${selector} > td.${td_name_css}`
