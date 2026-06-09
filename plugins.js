@@ -431,7 +431,10 @@ const registry = {
   'dns-list': { drop: ['emit', 'pass'], format: format_list },
   uribl: { drop: ['pass', 'skip'], format: format_list },
   early_talker: { drop: noise_text, format: pass_fail },
-  'helo.checks': { drop: noise_text, format: pass_fail },
+  'helo.checks': {
+    drop: ['skip', 'ips', 'multi', 'helo_host'],
+    format: pass_fail,
+  },
   karma: {
     drop: ['awards', 'msg', 'todo', 'asn_score'],
     format: format_karma,

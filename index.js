@@ -17,7 +17,7 @@ const SEVERITY_RANK = {
 }
 
 // Default sticky cells when [sticky]cells is absent from watch.ini.
-const STICKY_CELLS = new Set(['uribl'])
+const STICKY_CELLS = new Set(['uribl', 'helo.checks'])
 
 const base_uuid = (uuid) => uuid.replace(/\.\d+$/, '')
 

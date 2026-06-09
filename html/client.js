@@ -123,7 +123,7 @@ function newRow(data, uuid) {
   }
 
   rowResult.push(
-    '<td class=queue title="not queued" rowspan=2></td></tr>',
+    '<td class=queue title="" rowspan=2></td></tr>',
     `<tr class="${uuid}">`,
   )
 
