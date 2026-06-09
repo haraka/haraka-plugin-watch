@@ -245,7 +245,7 @@ async function getConfigAndConnect() {
       return
     }
 
-    if (data.watchers) {
+    if (data.watchers !== undefined) {
       $('span#watchers').text(data.watchers)
       return
     }

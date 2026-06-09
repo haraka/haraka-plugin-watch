@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - feat: add sticky cells, track worst per-conn plugin score (#76)
 - fix: add SRI integrity hash to jQuery CDN script
 - fix: use text nodes / .text() for WS msg, watchers, and pi names
+- fix: render a zero watcher count instead of leaving a stale value
 - fix: paint helo.checks green when all tests pass (#77)
 - fix: ignore connection reset
 
