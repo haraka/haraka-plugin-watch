@@ -241,12 +241,12 @@ async function getConfigAndConnect() {
     const data = JSON.parse(event.data)
 
     if (data.msg) {
-      $('#messages').append(`${data.msg} `)
+      $('#messages').append(document.createTextNode(`${data.msg} `))
       return
     }
 
     if (data.watchers) {
-      $('span#watchers').html(data.watchers)
+      $('span#watchers').text(data.watchers)
       return
     }
 
@@ -330,7 +330,7 @@ function updateSeen(plugin) {
         data_plugins.push(plugin)
         break
     }
-    $('#messages').append(`, refresh(${plugin}) `)
+    $('#messages').append(document.createTextNode(`, refresh(${plugin}) `))
     return resetTable()
   }
 
@@ -342,7 +342,7 @@ function updateSeen(plugin) {
     }
   }
 
-  $('#messages').append(`, uncategorized(${plugin}) `)
+  $('#messages').append(document.createTextNode(`, uncategorized(${plugin}) `))
   data_plugins.push(plugin)
   resetTable()
 }

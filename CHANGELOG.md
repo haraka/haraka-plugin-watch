@@ -4,8 +4,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Unreleased
 
-- feat: sticky cells, track worst score for a plugin across conn
-- fix: paint helo.checks green when all tests pass
+### [2.2.0] - 2026-06-09
+
+- feat: add sticky cells, track worst per-conn plugin score (#76)
+- fix: add SRI integrity hash to jQuery CDN script
+- fix: use text nodes / .text() for WS msg, watchers, and pi names
+- fix: paint helo.checks green when all tests pass (#77)
 - fix: ignore connection reset
 
 ### [2.1.0] - 2026-06-01
@@ -194,3 +198,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 [2.0.8]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.0.8
 [2.0.9]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.0.9
 [2.1.0]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.1.0
+[2.2.0]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.2.0
