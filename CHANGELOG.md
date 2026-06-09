@@ -4,7 +4,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Unreleased
 
-- feat: sticky cells, track worse score for a plugin across conn
+- feat: sticky cells, track worst score for a plugin across conn
+- fix: paint helo.checks green when all tests pass
 - fix: ignore connection reset
 
 ### [2.1.0] - 2026-06-01
