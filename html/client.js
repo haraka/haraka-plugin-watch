@@ -394,7 +394,7 @@ function displayHeaders() {
     ].join('\n\t'),
   )
   $('table#connections > tfoot > tr#helptext').html(
-    `<td colspan=${state.total_cols}>For a good time: <a href="telnet://${window.location.hostname}:587">nc ${window.location.hostname} 587</a></td>`,
+    `<td colspan=${state.total_cols}>For a good time: <a href="nc://${window.location.hostname}:587">openssl s_client -connect ${window.location.hostname}:465</a></td>`,
   )
 }
 

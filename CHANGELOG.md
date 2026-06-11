@@ -4,6 +4,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Unreleased
 
+- add helo.checks to default sticky cells
+
 ### [2.2.0] - 2026-06-09
 
 - feat: add sticky cells, track worst per-conn plugin score (#76)
