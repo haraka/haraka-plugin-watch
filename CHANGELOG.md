@@ -4,6 +4,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Unreleased
 
+### [2.2.1] - 2026-06-12
+
+#### Fixed
+
+- add helo.checks to default sticky cells (#79)
+
+- fix: paint the queue cell yellow on a deferral (denysoft)
 - add helo.checks to default sticky cells
 
 ### [2.2.0] - 2026-06-09
@@ -202,3 +209,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 [2.0.9]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.0.9
 [2.1.0]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.1.0
 [2.2.0]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.2.0
+[2.2.1]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.2.1

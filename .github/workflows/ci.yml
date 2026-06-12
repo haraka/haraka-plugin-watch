@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
   push:
-    branches: master
+    branches: [main, master]
 
 env:
   CI: true
@@ -19,6 +19,7 @@ jobs:
     uses: haraka/.github/.github/workflows/prettier.yml@master
     permissions:
       contents: write
+    secrets: inherit
     with:
       branch: ${{ github.head_ref }}
 
