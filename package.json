@@ -18,8 +18,8 @@
     "prettier:fix": "npx prettier . --write --log-level=warn",
     "qlty": "qlty smells --all",
     "test": "node --test test/*.js",
-    "test:coverage": "node --test --experimental-test-coverage --test-coverage-exclude=package.json --test-coverage-exclude=test/*.js test/*.js",
-    "test:coverage:lcov": "mkdir -p coverage && node --test --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=coverage/lcov.info test/*.js",
+    "test:coverage": "node --test --experimental-test-coverage --test-coverage-include=*.js",
+    "test:coverage:lcov": "mkdir -p coverage && node --test --experimental-test-coverage --test-coverage-include=*.js --test-reporter=lcov --test-reporter-destination=coverage/lcov.info",
     "versions": "npx npm-dep-mgr check",
     "versions:fix": "npx npm-dep-mgr update"
   },
