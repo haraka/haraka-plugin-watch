@@ -1,6 +1,6 @@
 {
   "name": "haraka-plugin-watch",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Watch live SMTP traffic in a web interface",
   "main": "index.js",
   "files": [
@@ -18,10 +18,10 @@
     "prettier:fix": "npx prettier . --write --log-level=warn",
     "qlty": "qlty smells --all",
     "test": "node --test test/*.js",
-    "test:coverage": "node --test --experimental-test-coverage --test-coverage-exclude=package.json --test-coverage-exclude=test/*.js test/*.js",
-    "test:coverage:lcov": "mkdir -p coverage && node --test --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=coverage/lcov.info test/*.js",
-    "versions": "npx dependency-version-checker check",
-    "versions:fix": "npx dependency-version-checker update"
+    "test:coverage": "node --test --experimental-test-coverage --test-coverage-include=*.js",
+    "test:coverage:lcov": "mkdir -p coverage && node --test --experimental-test-coverage --test-coverage-include=*.js --test-reporter=lcov --test-reporter-destination=coverage/lcov.info",
+    "versions": "npx npm-dep-mgr check",
+    "versions:fix": "npx npm-dep-mgr update"
   },
   "prettier": {
     "singleQuote": true,
@@ -50,6 +50,7 @@
   },
   "devDependencies": {
     "@haraka/eslint-config": "^3.0.0",
-    "haraka-test-fixtures": "^1.7.0"
+    "globals": "^17.6.0",
+    "haraka-test-fixtures": "^1.7.1"
   }
 }

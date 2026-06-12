@@ -1,5 +1,5 @@
-import globals from 'globals'
 import haraka from '@haraka/eslint-config'
+import globals from 'globals'
 
 export default [
   ...haraka,
@@ -8,7 +8,7 @@ export default [
     languageOptions: {
       globals: {
         ...globals.browser,
-        $: 'readonly',
+        ...globals.jquery,
       },
     },
   },
