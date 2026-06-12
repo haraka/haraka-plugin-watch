@@ -418,7 +418,7 @@ function format_dmarc(r) {
 
 function format_queue(r) {
   if (r.pass) return { classy: 'bg_green', title: r.pass }
-  if (r.fail) return { classy: 'bg_red', title: r.fail }
+  if (r.fail) return { classy: r.soft ? 'bg_yellow' : 'bg_red', title: r.fail }
   if (r.msg === '') return {}
 }
 

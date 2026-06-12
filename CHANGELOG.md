@@ -6,12 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### [2.2.1] - 2026-06-12
 
-#### Fixed
-
-- add helo.checks to default sticky cells (#79)
-
 - fix: paint the queue cell yellow on a deferral (denysoft)
-- add helo.checks to default sticky cells
+- add helo.checks to default sticky cells (#79)
 
 ### [2.2.0] - 2026-06-09
 

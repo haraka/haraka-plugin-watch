@@ -446,6 +446,13 @@ describe('watch', function () {
         classy: 'bg_red',
         title: 'rejected',
       })
+      assert.deepEqual(
+        plugin.format_any('queue', { fail: 'deferred', soft: true }),
+        {
+          classy: 'bg_yellow',
+          title: 'deferred',
+        },
+      )
     })
 
     it('formats geoip, p0f, uribl and karma score tiers', function () {
