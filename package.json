@@ -20,8 +20,8 @@
     "test": "node --test test/*.js",
     "test:coverage": "node --test --experimental-test-coverage --test-coverage-exclude=package.json --test-coverage-exclude=test/*.js test/*.js",
     "test:coverage:lcov": "mkdir -p coverage && node --test --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=coverage/lcov.info test/*.js",
-    "versions": "npx dependency-version-checker check",
-    "versions:fix": "npx dependency-version-checker update"
+    "versions": "npx npm-dep-mgr check",
+    "versions:fix": "npx npm-dep-mgr update"
   },
   "prettier": {
     "singleQuote": true,
