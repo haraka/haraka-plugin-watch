@@ -50,6 +50,7 @@
   },
   "devDependencies": {
     "@haraka/eslint-config": "^3.0.0",
+    "globals": "^17.6.0",
     "haraka-test-fixtures": "^1.7.1"
   }
 }
