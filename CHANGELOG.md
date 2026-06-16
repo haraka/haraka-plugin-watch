@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Unreleased
 
+### [2.2.3] - 2026-06-16
+
+- fix: correctly handle case where there is no uuid
+
 ### [2.2.2] - 2026-06-16
 
 - fix: correctly handle uuid when there is no trx uuid

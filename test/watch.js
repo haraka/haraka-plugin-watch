@@ -701,6 +701,18 @@ describe('watch', function () {
       assert.equal(sent.at(-1).access.classy, 'bg_dyellow')
     })
 
+    it('w_deny silently skips when connection has no uuid (outbound context)', async function () {
+      const sent = []
+      const plugin = makePlugin('watch', { register: false })
+      await initWss(plugin, sent)
+
+      const before = sent.length
+      await new Promise((resolve) =>
+        plugin.w_deny(resolve, { logdebug() {} }, [DENY, null, 'access', null, null, 'data']),
+      )
+      assert.equal(sent.length, before)
+    })
+
     it('queue_ok broadcasts queue success', async function () {
       const sent = []
       const plugin = makePlugin('watch', { register: false })

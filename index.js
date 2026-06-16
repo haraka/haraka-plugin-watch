@@ -154,8 +154,11 @@ exports.w_deny = function (next, connection, params) {
 
   // a deny colors the offending plugin's cell; it does not end the
   // connection, so leave local_port lit until the disconnect result arrives
+  const uuid = connection.transaction?.uuid ?? connection.uuid
+  if (!uuid) return next()
+
   const req = {
-    uuid: connection.transaction?.uuid ?? connection.uuid,
+    uuid,
     remote_host: display.get_remote_host(connection),
   }
 
@@ -163,7 +166,7 @@ exports.w_deny = function (next, connection, params) {
   const report_as = display.get_plugin_name(pi_name)
   if (req[report_as]) req[report_as].classy = bg_class
   if (!req[report_as]) req[report_as] = { classy: bg_class }
-  stick_severity(this, req.uuid, req)
+  stick_severity(this, uuid, req)
 
   wss.broadcast(req)
   next()
