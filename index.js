@@ -155,9 +155,7 @@ exports.w_deny = function (next, connection, params) {
   // a deny colors the offending plugin's cell; it does not end the
   // connection, so leave local_port lit until the disconnect result arrives
   const req = {
-    uuid: connection.transaction
-      ? connection.transaction.uuid
-      : connection.uuid,
+    uuid: connection.transaction?.uuid ?? connection.uuid,
     remote_host: display.get_remote_host(connection),
   }
 
