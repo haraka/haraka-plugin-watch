@@ -4,7 +4,7 @@
 
 Watch live SMTP traffic in a web interface.
 
-![Watch Screen Capture](http://www.tnpi.net/internet/mail/haraka-watch.png)
+![Watch Screen Capture][watch-img]
 
 ## Enable Watch
 
@@ -58,6 +58,7 @@ Config options are set in watch.ini.
 
 <!-- leave these buried at the bottom of the document -->
 
+[watch-img]: https://raw.githubusercontent.com/haraka/haraka-plugin-watch/refs/heads/master/html/watch.png
 [ci-img]: https://github.com/haraka/haraka-plugin-watch/actions/workflows/ci.yml/badge.svg
 [ci-url]: https://github.com/haraka/haraka-plugin-watch/actions/workflows/ci.yml
 [cov-img]: https://codecov.io/github/haraka/haraka-plugin-watch/coverage.svg
