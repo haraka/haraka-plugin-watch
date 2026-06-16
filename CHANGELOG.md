@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Unreleased
 
+### [2.2.2] - 2026-06-16
+
+- fix: correctly handle uuid when there is no trx uuid
+
 ### [2.2.1] - 2026-06-12
 
 - fix: paint the queue cell yellow on a deferral (denysoft)
