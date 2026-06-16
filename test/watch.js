@@ -660,6 +660,7 @@ describe('watch', function () {
 
   describe('deny and queue hooks', function () {
     const connection = {
+      uuid: 'C-1',
       transaction: { uuid: 'TX-1' },
       remote: { host: 'mail.example.net', ip: '192.0.2.5' },
       logdebug() {},
@@ -699,6 +700,27 @@ describe('watch', function () {
         ]),
       )
       assert.equal(sent.at(-1).access.classy, 'bg_dyellow')
+    })
+
+    it('w_deny ignores outbound deny (no connection.uuid)', async function () {
+      const sent = []
+      const plugin = makePlugin('watch', { register: false })
+      await initWss(plugin, sent)
+
+      // outbound delivery passes the HMailItem as the connection: it has a
+      // todo.uuid but no connection.uuid (see Haraka outbound/hmail.js)
+      const outbound = { todo: { uuid: 'TX-1' }, logdebug() {} }
+      await new Promise((resolve) =>
+        plugin.w_deny(resolve, outbound, [
+          DENY,
+          null,
+          'access',
+          null,
+          null,
+          'rcpt',
+        ]),
+      )
+      assert.equal(sent.length, 0)
     })
 
     it('queue_ok broadcasts queue success', async function () {

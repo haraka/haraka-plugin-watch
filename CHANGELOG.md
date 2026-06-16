@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Unreleased
 
+### [2.2.3] - 2026-06-16
+
+- fix: correctly handle deny when there is no uuid
+
 ### [2.2.2] - 2026-06-16
 
 - fix: correctly handle uuid when there is no trx uuid
@@ -210,3 +214,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 [2.1.0]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.1.0
 [2.2.0]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.2.0
 [2.2.1]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.2.1
+[2.2.2]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.2.2
+[2.2.3]: https://github.com/haraka/haraka-plugin-watch/releases/tag/v2.2.3

@@ -150,6 +150,8 @@ exports.w_deny = function (next, connection, params) {
   const pi_name = params[2]
   const pi_hook = params[5]
 
+  if (!connection.uuid) return next() // outbound
+
   connection.logdebug(this, `watch deny saw: ${pi_name} deny from ${pi_hook}`)
 
   // a deny colors the offending plugin's cell; it does not end the
