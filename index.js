@@ -231,18 +231,39 @@ const phase_handlers = {
   },
 }
 
+exports.shutdown = function () {
+  if (this.pubsub?.isOpen) {
+    this.pubsub.quit().catch((err) => this.logerror(err.message))
+  }
+}
+
 exports.redis_subscribe_all_results = async function (next) {
   const plugin = this
 
-  if (this.pubsub) return // already subscribed?
+  if (this.pubsub?.isOpen) return next()
 
-  this.pubsub = redis.createClient(this.redisCfg.pubsub)
+  this.pubsub = redis.createClient({
+    ...this.redisCfg.pubsub,
+    socket: {
+      ...this.redisCfg.pubsub?.socket,
+      // retry indefinitely so a transient network drop never crashes Haraka
+      reconnectStrategy: (retries) => Math.min(retries * 100, 5000),
+    },
+  })
   this.pubsub.on('error', (err) => {
     this.logerror(err.message)
   })
-  await this.pubsub.connect()
 
-  await this.pubsub.pSubscribe('result-*', (message, channel) => {
+  try {
+    await this.pubsub.connect()
+  } catch (err) {
+    this.logerror(`pubsub connect failed: ${err.message}`)
+    this.pubsub = null
+    return next()
+  }
+
+  try {
+    await this.pubsub.pSubscribe('result-*', (message, channel) => {
     const match = /result-([A-F0-9\-.]+)$/.exec(channel) // uuid
     if (!match) {
       plugin.logerror('pattern: result-*')
@@ -276,8 +297,11 @@ exports.redis_subscribe_all_results = async function (next) {
 
     if (Object.keys(cells).length) wss.broadcast({ uuid, ...cells })
   })
+    this.logdebug(this, `pSubscribed to result-*`)
+  } catch (err) {
+    this.logerror(`pubsub pSubscribe failed: ${err.message}`)
+  }
 
-  this.logdebug(this, `pSubscribed to result-*`)
   next()
 }
 
