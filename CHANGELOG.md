@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Unreleased
 
+### [2.2.4] - 2026-06-28
+
+- fix: prevent Redis pubsub connection drop from crashing Haraka
+
 ### [2.2.3] - 2026-06-16
 
 - fix: correctly handle deny when there is no uuid

@@ -1,6 +1,6 @@
 {
   "name": "haraka-plugin-watch",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "description": "Watch live SMTP traffic in a web interface",
   "main": "index.js",
   "files": [
